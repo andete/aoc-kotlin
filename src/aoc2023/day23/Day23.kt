@@ -1,18 +1,21 @@
 package aoc2023.day23
 
-import println
 import readInput
-import util.Direction
-import util.Located
-import util.Location
-import util.Maze
-import kotlin.math.max
+import util.*
+import kotlin.math.absoluteValue
 
 fun main() {
 
     run {
         val testInput = readInput(2023, 23, "test1")
         val res = part1(testInput)
+        println(res)
+        check(94 == res)
+    }
+
+    run {
+        val testInput = readInput(2023, 23, "test1")
+        val res = part1AStar(testInput)
         println(res)
         check(94 == res)
     }
@@ -25,6 +28,13 @@ fun main() {
     }
 
     run {
+        val input = readInput(2023, 23)
+        val res = part1AStar(input)
+        println(res)
+        check(2010 == res)
+    }
+
+    run {
         val testInput = readInput(2023, 23, "test1")
         val res = part2(testInput)
         println(res)
@@ -32,8 +42,15 @@ fun main() {
     }
 
     run {
+        val testInput = readInput(2023, 23, "test1")
+        val res = part2AStar(testInput)
+        println(res)
+        check(154 == res)
+    }
+
+    run {
         val input = readInput(2023, 23)
-        val res = part2(input)
+        val res = part2AStar(input)
         println(res)
         check(2010 == res)
     }
@@ -51,6 +68,33 @@ private enum class TileType(val c: Char, val d: Direction? = null) {
 
     val path get() = this != Forest && this.d == null
     val pathOrSlope get() = this != Forest
+}
+
+private data class CellWrapper(
+    val direction: Direction?,
+    val cell: Cell,
+    val map: Map,
+
+    ) : InvertedAStar.NeighboursProvider<CellWrapper> {
+
+    override fun toString() = cell.toString()
+    override fun neighbours(visited: List<CellWrapper>): List<CellWrapper> {
+        val visited = visited.map { it.cell }
+        return map.neighbours(cell).filter { (direction, newCell) ->
+            val slopeOk = if (!slopesAreEasy) {
+                newCell.type.path || newCell.type.d == direction
+            } else {
+                newCell.type.pathOrSlope
+            }
+            val visitedOk = newCell !in visited
+            slopeOk && visitedOk
+        }.map { CellWrapper(it.first, it.second, map) }
+    }
+
+    override fun equals(other: Any?) = cell == (other as? CellWrapper)?.cell
+    override fun hashCode(): Int {
+        return cell.hashCode()
+    }
 }
 
 private data class Cell(override val location: Location, val type: TileType) : Located {
@@ -83,6 +127,18 @@ private fun search(map: Map): Int {
     return path.size - 1
 }
 
+private fun searchAStar(map: Map): Int {
+    val start = map.cells.flatten().single { it.type == TileType.Start }
+    val startW = CellWrapper(Direction.South, start, map)
+    val end = map.cells.flatten().single { it.type == TileType.End }
+    val endW = CellWrapper(null, end, map)
+    fun heuristic(c: CellWrapper) = 0
+    fun distance(c: CellWrapper, d: CellWrapper) = 1
+    val path = InvertedAStar.path(startW, endW, ::heuristic, ::distance)
+    map.show(path.map { it.cell })
+    return path.size - 1
+}
+
 private var slopesAreEasy = false
 
 private fun search2(map: Maze<Cell>, cell: Cell, visited: MutableList<Cell>): List<Cell>? {
@@ -109,7 +165,9 @@ private fun search2(map: Maze<Cell>, cell: Cell, visited: MutableList<Cell>): Li
             bestPath = s
         }
     }
-    if (bestPath.isEmpty()) { return null }
+    if (bestPath.isEmpty()) {
+        return null
+    }
     return listOf(cell) + bestPath
 }
 
@@ -120,8 +178,20 @@ private fun part1(input: List<String>): Int {
     return search(map)
 }
 
+private fun part1AStar(input: List<String>): Int {
+    slopesAreEasy = false
+    val map = parse(input)
+    return searchAStar(map)
+}
+
 private fun part2(input: List<String>): Int {
     slopesAreEasy = true
     val map = parse(input)
     return search(map)
+}
+
+private fun part2AStar(input: List<String>): Int {
+    slopesAreEasy = true
+    val map = parse(input)
+    return searchAStar(map)
 }

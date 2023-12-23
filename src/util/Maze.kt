@@ -1,6 +1,11 @@
 package util
 
 data class Maze<L : Located>(val cells: List<List<L>>) {
+
+    val ySize = cells.size
+    val xSize = cells[0].size
+    val size = cells.size * cells[0].size
+
     fun show(visited: List<L> = emptyList()) {
         for (row in cells) {
             println(row.joinToString("") { "${it.toChar(visited)}" })
