@@ -6,7 +6,10 @@ import kotlin.io.path.readLines
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(year: Int, name: String) = Path("src/aoc$year/$name.txt").readLines()
+fun readInput(year: Int, day: Int, name: String = "input"): List<String> {
+    val num = "%02d".format(day)
+    return Path("src/aoc$year/day$num/$name.txt").readLines()
+}
 
 /**
  * Converts string to md5 hash.
