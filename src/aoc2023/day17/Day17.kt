@@ -33,8 +33,9 @@ private fun search(map: Map): Int {
     val end = map.at(map.xSize - 1, map.ySize - 1)!!
     fun cost(c: Cell, d: Cell) = d.loss
     fun neighbours(c: Cell, visited: List<Cell>): List<Cell> {
+        // if only one, visited is our starting cell, so just take all the neighbours
         if (visited.size == 1) {
-            return map.neighbours(c).map { it.second }.filter { it !in visited }
+            return map.neighbours(c).map { it.second }
         }
         val s1 = visited.subList(0, visited.size - 1)
         val s2 = visited.subList(1, visited.size)
@@ -59,9 +60,8 @@ private fun search(map: Map): Int {
     }
 
     var path = AStar.path(start, end, ::cost, ::neighbours)
-    path = path.subList(1, path.size)
     map.show(path)
-    val loss = path.sumOf { it.loss }
+    val loss = path.sumOf { it.loss } - start.loss
     return loss
 }
 
