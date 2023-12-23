@@ -11,7 +11,6 @@ import kotlin.math.max
 fun main() {
 
     run {
-        // test if implementation meets criteria from the description, like:
         val testInput = readInput(2023, 23, "test1")
         val res = part1(testInput)
         println(res)
@@ -22,18 +21,36 @@ fun main() {
         val input = readInput(2023, 23)
         val res = part1(input)
         println(res)
-        check(94 == res)
+        check(2010 == res)
+    }
+
+    run {
+        val testInput = readInput(2023, 23, "test1")
+        val res = part2(testInput)
+        println(res)
+        check(154 == res)
+    }
+
+    run {
+        val input = readInput(2023, 23)
+        val res = part2(input)
+        println(res)
+        check(2010 == res)
     }
 }
 
 private enum class TileType(val c: Char, val d: Direction? = null) {
     Start('S'),
+    End('E'),
     Path('.'),
     Forest('#'),
     SlopeNorth('^', Direction.North),
     SlopeSouth('v', Direction.South),
     SlopeWest('<', Direction.West),
-    SlopeEast('>', Direction.East),
+    SlopeEast('>', Direction.East);
+
+    val path get() = this != Forest && this.d == null
+    val pathOrSlope get() = this != Forest
 }
 
 private data class Cell(override val location: Location, val type: TileType) : Located {
@@ -61,30 +78,50 @@ private fun parse(input: List<String>): Map {
 private fun search(map: Map): Int {
     val start = map.cells.flatten().single { it.type == TileType.Start }
     val visited = mutableListOf<Cell>()
-    return search2(map, start, visited) - 1
+    val path = search2(map, start, visited)!!
+    map.show(path)
+    return path.size - 1
 }
 
-private fun search2(map: Maze<Cell>, cell: Cell, visited: MutableList<Cell>): Int {
+private var slopesAreEasy = false
+
+private fun search2(map: Maze<Cell>, cell: Cell, visited: MutableList<Cell>): List<Cell>? {
     visited.add(cell)
+    if (cell.type == TileType.End) {
+        return listOf(cell)
+    }
     val candidates = map.neighbours(cell).filter { (direction, newCell) ->
-        val slopeOk = newCell.type == TileType.Path || newCell.type.d == direction
+        val slopeOk = if (!slopesAreEasy) {
+            newCell.type.path || newCell.type.d == direction
+        } else {
+            newCell.type.pathOrSlope
+        }
         val visitedOk = newCell !in visited
         slopeOk && visitedOk
     }
-    var m = 0
+    if (candidates.isEmpty()) {
+        return null
+    }
+    var bestPath: List<Cell> = emptyList()
     for (candidate in candidates) {
         val s = search2(map, candidate.second, visited.toMutableList())
-        m = max(s, m)
+        if (s != null && s.size > bestPath.size) {
+            bestPath = s
+        }
     }
-    return 1 + m
+    if (bestPath.isEmpty()) { return null }
+    return listOf(cell) + bestPath
 }
 
 private fun part1(input: List<String>): Int {
+    slopesAreEasy = false
     val map = parse(input)
     map.show()
     return search(map)
 }
 
 private fun part2(input: List<String>): Int {
-    return input.size
+    slopesAreEasy = true
+    val map = parse(input)
+    return search(map)
 }
