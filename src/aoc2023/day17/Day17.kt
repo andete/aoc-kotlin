@@ -41,6 +41,7 @@ private data class WrappedCell(val cell: Cell, val direction: Direction?, val la
 
     override fun hashCode(): Int {
         var result = cell.hashCode()
+        result = 31 * result + (direction?.hashCode() ?: 0)
         result = 31 * result + (lastDirectionSteps ?: 0)
         return result
     }
@@ -49,7 +50,7 @@ private data class WrappedCell(val cell: Cell, val direction: Direction?, val la
 private fun search(map: Map): Int {
     val start = WrappedCell(map.at(0, 0)!!, null, 0)
     val end = WrappedCell(map.at(map.xSize - 1, map.ySize - 1)!!, null, null)
-    fun cost(c: WrappedCell, d: WrappedCell) = d.cell.loss + (d.lastDirectionSteps ?: 0)
+    fun cost(c: WrappedCell, d: WrappedCell) = d.cell.loss
     fun neighbours(c: WrappedCell, visited: List<WrappedCell>): List<WrappedCell> {
         // if only one, visited is our starting cell, so just take all the neighbours
         if (visited.size == 1) {
@@ -100,6 +101,6 @@ fun main() {
         map.show()
         val res = search(map)
         println(res)
-        check(1054 == res)
+        check(1023 == res)
     }
 }
