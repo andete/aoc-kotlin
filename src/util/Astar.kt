@@ -14,13 +14,12 @@ object AStar {
         // when comparing or hashing
 
         override fun equals(other: Any?) = when (other) {
-            null -> false
             is Node<*> -> other.e == e && other.parent?.e == parent?.e
             else -> false
         }
 
         override fun hashCode(): Int {
-            var result = e?.hashCode() ?: 0
+            var result = e.hashCode()
             result = 31 * result + (parent?.e?.hashCode() ?: 0)
             return result
         }
@@ -33,6 +32,7 @@ object AStar {
         cost: (E, E) -> Int,
         neighbours: (E, List<E>) -> List<E>,
         heuristic: (E) -> Int = { 0 },
+        show: (List<E>) -> Unit = {}
     ): List<E> {
         val startNode = Node(start, null)
         if (start == goal) {
@@ -49,17 +49,22 @@ object AStar {
         openSet.add(startNode)
         while (openSet.isNotEmpty()) {
             val current = openSet.poll() ?: break
-            fScoreMap.remove(current)
             closedSet.add(current)
             if (current.e == goal) {
                 return reconstruct(current)
             }
-            val neighboursNodes = neighbours(current.e, reconstruct(current)).map { Node(it, current) }
+            fScoreMap.remove(current)
+            val score = gScore(current)
+            gScoreMap.remove(current)
+            val visited = reconstruct(current)
+            // println(score)
+            show(visited)
+            val neighboursNodes = neighbours(current.e, visited).map { Node(it, current) }
             for (neighbour in neighboursNodes) {
                 if (closedSet.contains(neighbour)) {
                     continue
                 }
-                val tentative = gScore(current) + cost(current.e, neighbour.e)
+                val tentative = score + cost(current.e, neighbour.e)
                 if (tentative < gScore(neighbour)) {
                     gScoreMap[neighbour] = tentative
                     fScoreMap[neighbour] = tentative + heuristic(neighbour.e)

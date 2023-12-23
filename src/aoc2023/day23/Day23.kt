@@ -98,11 +98,11 @@ private data class CellWrapper(
 }
 
 private data class Cell(override val location: Location, val type: TileType) : Located {
-    override fun toChar(visited: List<Located>): Char {
+    override fun toChar(visited: List<Located>): String {
         if (this in visited) {
-            return 'O'
+            return "O"
         } else {
-            return type.c
+            return "${type.c}"
         }
     }
 }

@@ -37,6 +37,6 @@ enum class Direction(val location: Location) {
 
 interface Located {
     val location: Location
-    fun toChar(visited: List<Located>): Char
+    fun toChar(visited: List<Located>): String
 
 }
