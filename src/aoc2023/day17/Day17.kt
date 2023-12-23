@@ -84,12 +84,56 @@ private fun search(map: Map): Int {
     return loss
 }
 
+private fun search2(map: Map): Int {
+    val start = WrappedCell(map.at(0, 0)!!, null, 0)
+    val end = WrappedCell(map.at(map.xSize - 1, map.ySize - 1)!!, null, null)
+    fun cost(c: WrappedCell, d: WrappedCell) = d.cell.loss
+    fun neighbours(c: WrappedCell, visited: List<WrappedCell>): List<WrappedCell> {
+        // if only one, visited is our starting cell, so just take all the neighbours
+        if (visited.size == 1) {
+            return map.neighbours(c.cell).map { WrappedCell(it.second, it.first, 1) }
+        }
+        val lastDirection = c.direction!!
+        // we can't make a U-turn
+        val forbiddenDirections = mutableListOf(-lastDirection)
+        // if we ended with moving 10 times in the same direction, we can't continue in the same direction
+        if (c.lastDirectionSteps == 10) {
+            forbiddenDirections.add(lastDirection)
+        }
+        // if we move less then 4 steps in the same direction, we can only continue further in the same direction
+        else if (c.lastDirectionSteps!! < 4) {
+            forbiddenDirections.addAll(Direction.entries.filter { it != lastDirection})
+        }
+        return map.neighbours(c.cell).filter { it.first !in forbiddenDirections }.mapNotNull {
+            if (it.second == end.cell && (c.lastDirectionSteps < 3 || it.first != lastDirection)) {
+                null
+            } else {
+                if (it.first != lastDirection) {
+                    WrappedCell(it.second, it.first, 1)
+                } else {
+                    WrappedCell(it.second, lastDirection, c.lastDirectionSteps!! + 1)
+                }
+            }
+        }
+    }
+    fun heuristic(c: WrappedCell): Int {
+        return map.xSize - c.cell.location.x + map.ySize - c.cell.location.y
+    }
+    fun show(visited: List<Cell>) {
+        map.show(visited)
+    }
+
+    val path = AStar.path(start, end, ::cost, ::neighbours, show = {})
+    map.show(path.map { it.cell })
+    val loss = path.sumOf { it.cell.loss } - start.cell.loss
+    return loss
+}
+
 fun main() {
 
     run {
         val testInput = readInput(2023, 17, "example")
         val map = parse(testInput)
-        map.show()
         val res = search(map)
         println(res)
         check(102 == res)
@@ -98,9 +142,32 @@ fun main() {
     run {
         val testInput = readInput(2023, 17)
         val map = parse(testInput)
-        map.show()
         val res = search(map)
         println(res)
-        check(1023 == res)
+        check(1013 == res)
+    }
+
+    run {
+        val testInput = readInput(2023, 17, "example")
+        val map = parse(testInput)
+        val res = search2(map)
+        println(res)
+        check(94 == res)
+    }
+
+    run {
+        val testInput = readInput(2023, 17, "example2")
+        val map = parse(testInput)
+        val res = search2(map)
+        println(res)
+        check(71 == res)
+    }
+
+    run {
+        val testInput = readInput(2023, 17)
+        val map = parse(testInput)
+        val res = search2(map)
+        println(res)
+        check(1215 == res)
     }
 }
