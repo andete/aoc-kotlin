@@ -1,10 +1,7 @@
 package aoc2023.day17
 
 import readInput
-import util.AStar
-import util.Located
-import util.Location
-import util.Maze
+import util.*
 
 private data class Cell(override val location: Location, val loss: Int) : Located {
     override fun toChar(visited: List<Located>): Char {
@@ -34,12 +31,9 @@ private fun parse(input: List<String>): Map {
 private fun search(map: Map): Int {
     val start = map.at(0, 0)!!
     val end = map.at(map.xSize - 1, map.ySize - 1)!!
-    fun distance(c: Cell, d: Cell) = c.loss
+    fun cost(c: Cell, d: Cell) = d.loss
     fun neighbours(c: Cell, visited: List<Cell>): List<Cell> {
-        if (visited.isEmpty()) {
-            return map.neighbours(c).map { it.second }
-        }
-        if (visited.size < 2) {
+        if (visited.size == 1) {
             return map.neighbours(c).map { it.second }.filter { it !in visited }
         }
         val s1 = visited.subList(0, visited.size - 1)
@@ -64,9 +58,10 @@ private fun search(map: Map): Int {
         return map.xSize - c.location.x + map.ySize - c.location.y
     }
 
-    val path = AStar.path(start, end, ::distance, ::neighbours)
+    var path = AStar.path(start, end, ::cost, ::neighbours)
+    path = path.subList(1, path.size)
     map.show(path)
-    val loss = path.filter { it != start }.sumOf { it.loss }
+    val loss = path.sumOf { it.loss }
     return loss
 }
 

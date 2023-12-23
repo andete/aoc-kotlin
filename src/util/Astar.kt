@@ -30,7 +30,7 @@ object AStar {
     fun <E>path(
         start: E,
         goal: E,
-        distance: (E, E) -> Int,
+        cost: (E, E) -> Int,
         neighbours: (E, List<E>) -> List<E>,
         heuristic: (E) -> Int = { 0 },
     ): List<E> {
@@ -42,7 +42,7 @@ object AStar {
         val gScoreMap = hashMapOf(startNode to 0)
         val fScoreMap = hashMapOf(startNode to heuristic(start))
         fun gScore(n: Node<E>) = gScoreMap.getOrDefault(n, Int.MAX_VALUE)
-        fun fScore(n: Node<E>) = fScoreMap.getOrDefault(n, Int.MAX_VALUE)
+        fun fScore(n: Node<E>) = fScoreMap[n]!!
         val openSet = PriorityQueue<Node<E>> { o1, o2 -> fScore(o1).compareTo(fScore(o2)) }
         val closedSet = hashSetOf<Node<E>>()
 
@@ -54,13 +54,12 @@ object AStar {
             if (current.e == goal) {
                 return reconstruct(current)
             }
-            val visited = reconstruct(current)
-            val neighboursNodes = neighbours(current.e, visited).map { Node(it, current) }
+            val neighboursNodes = neighbours(current.e, reconstruct(current)).map { Node(it, current) }
             for (neighbour in neighboursNodes) {
                 if (closedSet.contains(neighbour)) {
                     continue
                 }
-                val tentative = gScore(current) + distance(current.e, neighbour.e)
+                val tentative = gScore(current) + cost(current.e, neighbour.e)
                 if (tentative < gScore(neighbour)) {
                     gScoreMap[neighbour] = tentative
                     fScoreMap[neighbour] = tentative + heuristic(neighbour.e)
