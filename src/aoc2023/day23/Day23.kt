@@ -2,7 +2,6 @@ package aoc2023.day23
 
 import readInput
 import util.*
-import kotlin.math.absoluteValue
 
 fun main() {
 
@@ -27,19 +26,19 @@ fun main() {
         check(2010 == res)
     }
 
-    run {
-        val input = readInput(2023, 23)
-        val res = part1AStar(input)
-        println(res)
-        check(2010 == res)
-    }
+//    run {
+//        val input = readInput(2023, 23)
+//        val res = part1AStar(input)
+//        println(res)
+//        check(2010 == res)
+//    }
 
-    run {
-        val testInput = readInput(2023, 23, "test1")
-        val res = part2(testInput)
-        println(res)
-        check(154 == res)
-    }
+//    run {
+//        val testInput = readInput(2023, 23, "test1")
+//        val res = part2(testInput)
+//        println(res)
+//        check(154 == res)
+//    }
 
     run {
         val testInput = readInput(2023, 23, "test1")
@@ -70,39 +69,12 @@ private enum class TileType(val c: Char, val d: Direction? = null) {
     val pathOrSlope get() = this != Forest
 }
 
-private data class CellWrapper(
-    val direction: Direction?,
-    val cell: Cell,
-    val map: Map,
-
-    ) : InvertedAStar.NeighboursProvider<CellWrapper> {
-
-    override fun toString() = cell.toString()
-    override fun neighbours(visited: List<CellWrapper>): List<CellWrapper> {
-        val visited = visited.map { it.cell }
-        return map.neighbours(cell).filter { (direction, newCell) ->
-            val slopeOk = if (!slopesAreEasy) {
-                newCell.type.path || newCell.type.d == direction
-            } else {
-                newCell.type.pathOrSlope
-            }
-            val visitedOk = newCell !in visited
-            slopeOk && visitedOk
-        }.map { CellWrapper(it.first, it.second, map) }
-    }
-
-    override fun equals(other: Any?) = cell == (other as? CellWrapper)?.cell
-    override fun hashCode(): Int {
-        return cell.hashCode()
-    }
-}
-
 private data class Cell(override val location: Location, val type: TileType) : Located {
     override fun toChar(visited: List<Located>): String {
-        if (this in visited) {
-            return "O"
+        return if (this in visited) {
+            "\u001b[31m${type.c}\u001b[0m"
         } else {
-            return "${type.c}"
+            "${type.c}"
         }
     }
 }
@@ -129,13 +101,23 @@ private fun search(map: Map): Int {
 
 private fun searchAStar(map: Map): Int {
     val start = map.cells.flatten().single { it.type == TileType.Start }
-    val startW = CellWrapper(Direction.South, start, map)
     val end = map.cells.flatten().single { it.type == TileType.End }
-    val endW = CellWrapper(null, end, map)
-    fun heuristic(c: CellWrapper) = 0
-    fun distance(c: CellWrapper, d: CellWrapper) = 1
-    val path = InvertedAStar.path(startW, endW, ::heuristic, ::distance)
-    map.show(path.map { it.cell })
+    fun cost(c: Cell, d: Cell) = 1
+    fun heuristic(c: Cell, visited: List<Cell>) = 0 // (-(map.xSize - c.location.x + map.ySize - c.location.y))// + visited.size
+    fun neighbours(c: Cell, visited: List<Cell>): List<Cell> {
+        return map.neighbours(c).filter { (direction, newCell) ->
+            val slopeOk = if (!slopesAreEasy) {
+                newCell.type.path || newCell.type.d == direction
+            } else {
+                newCell.type.pathOrSlope
+            }
+            val visitedOk = newCell !in visited
+            slopeOk && visitedOk
+        }.map { it.second }
+    }
+
+    val path = SearchFor2023Day23.path(start, end, ::cost, ::neighbours, ::heuristic)
+    map.show(path)
     return path.size - 1
 }
 
