@@ -92,7 +92,7 @@ private fun parse(input: List<String>): Map {
 }
 
 private fun search(map: Map): Int {
-    val start = map.cells.flatten().single { it.type == TileType.Start }
+    val start = map.rows.flatten().single { it.type == TileType.Start }
     val visited = mutableListOf<Cell>()
     val path = search2(map, start, visited)!!
     map.show(path)
@@ -100,8 +100,8 @@ private fun search(map: Map): Int {
 }
 
 private fun searchAStar(map: Map): Int {
-    val start = map.cells.flatten().single { it.type == TileType.Start }
-    val end = map.cells.flatten().single { it.type == TileType.End }
+    val start = map.rows.flatten().single { it.type == TileType.Start }
+    val end = map.rows.flatten().single { it.type == TileType.End }
     fun cost(c: Cell, d: Cell) = 1
     fun heuristic(c: Cell, visited: List<Cell>) = 0 // (-(map.xSize - c.location.x + map.ySize - c.location.y))// + visited.size
     fun neighbours(c: Cell, visited: List<Cell>): List<Cell> {
