@@ -1,12 +1,39 @@
-package be.damad.aoc2023.aoc02
+package aoc2023.day02
 
+import readInput
 import kotlin.math.max
 
-private var gamesSample = """Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
-Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
-Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
-Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
-Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green""".split('\n')
+
+fun main() {
+
+    run {
+        val input = readInput(2023, 2, "example")
+        val res = part1(input)
+        println(res)
+        check(8 == res)
+    }
+
+    run {
+        val input = readInput(2023, 2)
+        val res = part1(input)
+        println(res)
+        check(2156 == res)
+    }
+
+    run {
+        val input = readInput(2023, 2, "example")
+        val res = part2(input)
+        println(res)
+        check(2286 == res)
+    }
+
+    run {
+        val input = readInput(2023, 2)
+        val res = part2(input)
+        println(res)
+        check(66909 == res)
+    }
+}
 
 private data class Draw(val red: Int, val green: Int, val blue: Int)
 private data class Game(val id: Int, val draws: List<Draw>)
@@ -42,20 +69,15 @@ private fun possible(game: Game, red: Int = 12, green: Int = 13, blue: Int = 14)
     }
 }
 
-private fun calculatePart1(gamesData: List<String> = gamesSample)= parse(gamesData).filter { possible(it) }.sumOf { it.id }
+private fun part1(gamesData: List<String>)= parse(gamesData).filter { possible(it) }.sumOf { it.id }
 
 private fun Game.minimalSet(): Draw {
-    val red = draws.fold(0) { a, it -> max(a, it.red )}
-    val green = draws.fold(0) { a, it -> max(a, it.green )}
-    val blue = draws.fold(0) { a, it -> max(a, it.blue )}
+    val red = draws.fold(0) { a, it -> max(a, it.red ) }
+    val green = draws.fold(0) { a, it -> max(a, it.green ) }
+    val blue = draws.fold(0) { a, it -> max(a, it.blue ) }
     return Draw(red = red, green = green, blue = blue)
 }
 
 private val Draw.power get() = red * green * blue
 
-private fun calculatePart2(gamesData: List<String> = gamesSample) = parse(gamesData).sumOf { it.minimalSet().power }
-
-fun main() {
-    println(calculatePart1(data))
-    println(calculatePart2(data))
-}
+private fun part2(gamesData: List<String>) = parse(gamesData).sumOf { it.minimalSet().power }
