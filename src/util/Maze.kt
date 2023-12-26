@@ -51,3 +51,11 @@ fun parseCharMaze(input: List<String>) = CharMaze(input.mapIndexed { y, s ->
         LocatedItem(Location(x, y), c)
     }
 })
+
+interface WithChar {
+    val c: Char
+}
+inline fun <reified T>Char.toEnum(): T where T:WithChar, T:Enum<T> {
+    val c = enumValues<T>()
+    return c.first { it.c == this }
+}
