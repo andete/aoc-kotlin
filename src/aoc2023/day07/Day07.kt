@@ -1,12 +1,6 @@
-package be.damad.aoc2023.aoc07
+package aoc2023.day07
 
-import kotlin.streams.toList
-
-private val testData = """32T3K 765
-T55J5 684
-KK677 28
-KTJJT 220
-QQQJA 483""".split('\n')
+import day
 
 private val cards: List<Char> = listOf('A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J').reversed()
 
@@ -65,7 +59,7 @@ private class HandComparator : Comparator<String> {
 
 }
 
-private fun calculate(data: List<String>): Long {
+private fun part2(data: List<String>): Long {
     val input = data.map {
         val x = it.split(' ')
         x[0] to x[1].toLong()
@@ -84,11 +78,8 @@ private fun calculate(data: List<String>): Long {
 }
 
 fun main() {
-    println(testData)
-    val testResult = calculate(testData)
-    println(testResult)
-    check(5905L == testResult)
-    val res = calculate(aoc07data)
-    println(res)
-    check(252898370L == res)
+    day(2023, 7) {
+        part2(5905L, "test", ::part2)
+        part2(252898370L, "input", ::part2)
+    }
 }
