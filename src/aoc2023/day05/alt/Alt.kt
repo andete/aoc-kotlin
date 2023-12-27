@@ -1,7 +1,5 @@
-package be.damad.aoc2023.aoc05.alt
+package aoc2023.day05.alt
 
-import be.damad.aoc2023.aoc05.aoc05TestData
-import be.damad.aoc2023.aoc05.aoc05data
 import be.damad.aoc2023.util.longRangeIntersect
 import be.damad.aoc2023.util.minus
 import kotlin.math.max
@@ -139,14 +137,6 @@ private fun calculate(input: Input): Long {
     return result.dataRanges.minByOrNull { it.first }!!.first
 }
 
-fun main() {
-    val testRes = calculate(parse(aoc05TestData))
-    println(testRes)
-    check(46L == testRes)
-
-    val res = calculate(parse(aoc05data))
-    println(res)
-    check(69841803L == res)
-}
+fun aoc2023day05altPart2(input: List<String>) = calculate(parse(input))
 
 
