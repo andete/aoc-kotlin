@@ -30,7 +30,7 @@ data class Maze<L : Located>(val rows: List<List<L>>) {
 }
 
 data class LocatedItem<T>(override val location: Location, var t: T) : Located {
-    override fun toChar(visited: List<Located>) = "$t"
+    override fun toChar(visited: List<Located>) = "${t}"
 }
 
 typealias ItemMaze<T> = Maze<LocatedItem<T>>
@@ -58,4 +58,15 @@ interface WithChar {
 inline fun <reified T>Char.toEnum(): T where T:WithChar, T:Enum<T> {
     val c = enumValues<T>()
     return c.first { it.c == this }
+}
+
+typealias EnumMaze<T> = ItemMaze<Enum<T>>
+
+inline fun <reified T>parseEnumMaze(input: List<String>): EnumMaze<T> where T:WithChar, T:Enum<T> {
+    return EnumMaze<T>(input.mapIndexed { y, s ->
+        s.mapIndexed { x, c ->
+            val t:T = c.toEnum()
+            LocatedItem(Location(x, y), t)
+        }
+    })
 }
