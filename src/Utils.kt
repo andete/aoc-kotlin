@@ -31,6 +31,14 @@ data class AocDay<T>(val year: Int, val day: Int) {
         part(1, expected, name, lambda)
     }
 
+    fun part1(name: String, expected: T, lambda: () -> T) {
+        part(name, 1, expected, lambda)
+    }
+
+    fun part2(name: String, expected: T, lambda: () -> T) {
+        part(name, 2, expected, lambda)
+    }
+
     fun part2(expected: T, name: String, lambda: (List<String>) -> T) {
         part(2, expected, name, lambda)
     }
@@ -38,6 +46,16 @@ data class AocDay<T>(val year: Int, val day: Int) {
     private fun part(i: Int, expected: T, name: String, lambda: (List<String>) -> T) {
         val input = readInput(year, day, name)
         val res = lambda(input)
+        if (res == expected) {
+            println("aoc$year/$day/$i: $name -> $res")
+        } else {
+            println("aoc$year/$day/$i: $name -> $res != $expected")
+        }
+        check(expected == res)
+    }
+
+    private fun part(name: String, i: Int, expected: T, lambda: () -> T) {
+        val res = lambda()
         if (res == expected) {
             println("aoc$year/$day/$i: $name -> $res")
         } else {
