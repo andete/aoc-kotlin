@@ -1,33 +1,7 @@
-package be.damad.aoc2023.aoc08
+package aoc2023.day08
 
+import day
 import kotlin.math.max
-
-private val testData1 = """RL
-
-AAA = (BBB, CCC)
-BBB = (DDD, EEE)
-CCC = (ZZZ, GGG)
-DDD = (DDD, DDD)
-EEE = (EEE, EEE)
-GGG = (GGG, GGG)
-ZZZ = (ZZZ, ZZZ)""".split('\n')
-
-private val testData2 = """LLR
-
-AAA = (BBB, BBB)
-BBB = (AAA, ZZZ)
-ZZZ = (ZZZ, ZZZ)""".split('\n')
-
-private val testData3 = """LR
-
-11A = (11B, XXX)
-11B = (XXX, 11Z)
-11Z = (11B, XXX)
-22A = (22B, XXX)
-22B = (22C, 22C)
-22C = (22Z, 22Z)
-22Z = (22B, 22B)
-XXX = (XXX, XXX)""".split('\n')
 
 private data class Transform(val i: String, val left: String, val right: String) {
     fun map(c: Char): String {
@@ -66,20 +40,32 @@ private fun calculate(data: List<String>): Int {
     return i
 }
 
-private fun calculate2(data: List<String>): Long {
+private fun part1(data: List<String>): Int {
+    val instructions = Instructions(data[0])
+    val transforms = data.subList(2, data.size).map {
+        val j = it.split(' ', ',', '(', '=', ')')
+        j[0] to Transform(j[0], j[4], j[6])
+    }.toMap()
+    var s = "AAA"
+    var i = 0
+    while (s != "ZZZ") {
+        i++
+        s = transforms[s]!!.map(instructions.next().first)
+    }
+    return i
+}
+
+private fun part2(data: List<String>): Long {
     val instructions = Instructions(data[0])
     val transforms = data.subList(2, data.size).associate {
         val j = it.split(' ', ',', '(', '=', ')')
         j[0] to Transform(j[0], j[4], j[6])
     }
     var s = transforms.keys.filter { it.endsWith("A") }
-    var i = 0L
-    while (!s.all { it[2] == 'Z' }) {
-        i++
-        val x = instructions.next().first
-        s = s.map { transforms[it]!!.map(x) }
-    }
-    return i
+    println(s)
+    val q = s.map { investigate(it, transforms, instructions.copy()) }.map { it.first.toLong() }
+    println(q)
+    return calculateLCM(q)
 }
 
 // LCM calculation roughly copy/pasted from https://www.baeldung.com/kotlin/lcm
@@ -102,19 +88,6 @@ private fun calculateLCM(numbers: List<Long>): Long {
         result = calculateLCM(result, numbers[i])
     }
     return result
-}
-
-private fun calculate3(data: List<String>): Long {
-    val instructions = Instructions(data[0])
-    val transforms = data.subList(2, data.size).associate {
-        val j = it.split(' ', ',', '(', '=', ')')
-        j[0] to Transform(j[0], j[4], j[6])
-    }
-    var s = transforms.keys.filter { it.endsWith("A") }
-    println(s)
-    val q = s.map { investigate(it, transforms, instructions.copy()) }.map { it.first.toLong() }
-    println(q)
-    return calculateLCM(q)
 }
 
 private fun investigate(s1: String, transforms: Map<String, Transform>, instructions: Instructions): Pair<Int, Int> {
@@ -143,22 +116,11 @@ private fun investigate(s1: String, transforms: Map<String, Transform>, instruct
 }
 
 fun main() {
-    val res1 = calculate(testData1)
-    println(res1)
-    check(res1 == 2)
-    val res2 = calculate(testData2)
-    println(res2)
-    check(res2 == 6)
-    val res3 = calculate(aoc08data)
-    println(res3)
-    check(res3 == 12643)
-    val res4 = calculate2(testData3)
-    println(res4)
-    check(res4 == 6L)
-    val res5 = calculate3(testData3)
-    println(res5)
-    check(res5 == 6L)
-    val res6 = calculate3(aoc08data)
-    println(res6)
-    check(res6 == 13133452426987L)
+    day(2023, 8) {
+        part1(2, "test1", ::part1)
+        part1(6, "test2", ::part1)
+        part1(12643, "input", ::part1)
+        part2(6L, "test3", ::part2)
+        part2(13133452426987L, "input", ::part2)
+    }
 }
