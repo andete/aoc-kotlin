@@ -1,37 +1,17 @@
 package aoc2023.day02
 
+import day
 import readInput
 import kotlin.math.max
 
 
 fun main() {
 
-    run {
-        val input = readInput(2023, 2, "example")
-        val res = part1(input)
-        println(res)
-        check(8 == res)
-    }
-
-    run {
-        val input = readInput(2023, 2)
-        val res = part1(input)
-        println(res)
-        check(2156 == res)
-    }
-
-    run {
-        val input = readInput(2023, 2, "example")
-        val res = part2(input)
-        println(res)
-        check(2286 == res)
-    }
-
-    run {
-        val input = readInput(2023, 2)
-        val res = part2(input)
-        println(res)
-        check(66909 == res)
+    day(2023, 2) {
+        part1(8, "example", ::part1)
+        part1(2156, "input", ::part1)
+        part2(2286, "example", ::part2)
+        part2(66909, "input", ::part2)
     }
 }
 

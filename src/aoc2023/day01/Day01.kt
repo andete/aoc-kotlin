@@ -1,37 +1,17 @@
 package aoc2023.day01
 
+import day
 import readInput
 import util.digitStringToInt
 
 
 fun main() {
 
-    run {
-        val input = readInput(2023, 1, "example")
-        val res = part1(input)
-        println(res)
-        assert(142 == res)
-    }
-
-    run {
-        val input = readInput(2023, 1, "input")
-        val res = part1(input)
-        println(res)
-        assert(56108 == res)
-    }
-
-    run {
-        val input = readInput(2023, 1, "example2")
-        val res = part2(input)
-        println(res)
-        assert(281 == res)
-    }
-
-    run {
-        val input = readInput(2023, 1, "input")
-        val res = part2(input)
-        println(res)
-        assert(55652 == res)
+    day(2023, 1) {
+        part1(142, "example", ::part1)
+        part1(56108, "input", ::part1)
+        part2(281, "example2", ::part2)
+        part2(55652, "input", ::part2)
     }
 }
 

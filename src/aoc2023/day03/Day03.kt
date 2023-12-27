@@ -1,5 +1,6 @@
 package aoc2023.day03
 
+import day
 import readInput
 import util.*
 
@@ -74,31 +75,10 @@ fun adjacentToSymbol(engine: CharMaze, x: Int, y: Int) = engine.neighbours2(engi
 
 
 fun main() {
-    run {
-        val input = readInput(2023, 3, "example")
-        val res = part1(input)
-        println(res)
-        check(4361 == res)
-    }
-
-    run {
-        val input = readInput(2023, 3)
-        val res = part1(input)
-        println(res)
-        check(527446 == res)
-    }
-
-    run {
-        val input = readInput(2023, 3, "example")
-        val res = part2(input)
-        println(res)
-        check(467835 == res)
-    }
-
-    run {
-        val input = readInput(2023, 3)
-        val res = part2(input)
-        println(res)
-        check(73201705 == res)
+    day(2023, 3) {
+        part1(4361, "example", ::part1)
+        part1(527446, "input", ::part1)
+        part2(467835, "example", ::part2)
+        part2(73201705, "input", ::part2)
     }
 }

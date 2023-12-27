@@ -17,3 +17,37 @@ fun readInput(year: Int, day: Int, name: String = "input"): List<String> {
 fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray()))
     .toString(16)
     .padStart(32, '0')
+
+fun <T> runPart(year: Int, day: Int, expected: T, name: String = "input", part: (List<String>) -> T) {
+    val input = readInput(year, day, name)
+    val res = part(input)
+    println(res)
+    check(expected == res)
+}
+
+data class AocDay<T>(val year: Int, val day: Int) {
+
+    fun part1(expected: T, name: String, lambda: (bla: List<String>) -> T) {
+        part(1, expected, name, lambda)
+    }
+
+    fun part2(expected: T, name: String, lambda: (List<String>) -> T) {
+        part(2, expected, name, lambda)
+    }
+
+    private fun part(i: Int, expected: T, name: String, lambda: (List<String>) -> T) {
+        val input = readInput(year, day, name)
+        val res = lambda(input)
+        if (res == expected) {
+            println("aoc$year/$day/$i: $name -> $res")
+        } else {
+            println("aoc$year/$day/$i: $name -> $res != $expected")
+        }
+        check(expected == res)
+    }
+}
+
+fun <T> day(year: Int, day: Int, lambda: AocDay<T>.() -> Unit) {
+    val aoc = AocDay<T>(year, day)
+    lambda(aoc)
+}

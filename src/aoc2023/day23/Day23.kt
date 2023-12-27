@@ -1,57 +1,18 @@
 package aoc2023.day23
 
+import day
 import readInput
 import util.*
 
 fun main() {
+    day(2023, 23) {
+        part1(94, "test1", ::part1)
+        part1(94, "test1", ::part1AStar)
+        part1(2010, "input", ::part1)
+        part2(154, "test1", ::part2AStar)
+        part2(2010, "input", ::part2AStar)
 
-    run {
-        val testInput = readInput(2023, 23, "test1")
-        val res = part1(testInput)
-        println(res)
-        check(94 == res)
-    }
 
-    run {
-        val testInput = readInput(2023, 23, "test1")
-        val res = part1AStar(testInput)
-        println(res)
-        check(94 == res)
-    }
-
-    run {
-        val input = readInput(2023, 23)
-        val res = part1(input)
-        println(res)
-        check(2010 == res)
-    }
-
-//    run {
-//        val input = readInput(2023, 23)
-//        val res = part1AStar(input)
-//        println(res)
-//        check(2010 == res)
-//    }
-
-//    run {
-//        val testInput = readInput(2023, 23, "test1")
-//        val res = part2(testInput)
-//        println(res)
-//        check(154 == res)
-//    }
-
-    run {
-        val testInput = readInput(2023, 23, "test1")
-        val res = part2AStar(testInput)
-        println(res)
-        check(154 == res)
-    }
-
-    run {
-        val input = readInput(2023, 23)
-        val res = part2AStar(input)
-        println(res)
-        check(2010 == res)
     }
 }
 

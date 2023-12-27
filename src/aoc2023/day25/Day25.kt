@@ -1,5 +1,6 @@
 package aoc2023.day25
 
+import day
 import readInput
 import util.unsortedCombinations
 import util.unsortedCombinationsFind
@@ -204,51 +205,22 @@ private fun find4(edges: List<Edge>): Int {
     return 0
 }
 
+fun part1Attempt1(input: List<String>): Int {
+    println(unsortedCombinations(listOf("A", "B", "C", "D"), 3, compareBy { it }))
+    val p = parse(input)
+    println(p)
+    val g = groups(p)
+    println(g.size)
+    println(g)
+    return find(p)
+}
+
 fun main() {
-
-    run {
-        println(unsortedCombinations(listOf("A", "B", "C", "D"), 3, compareBy { it }))
-        val testInput = readInput(2023, 25, "test")
-        val p = parse(testInput)
-        println(p)
-        val g = groups(p)
-        println(g.size)
-        println(g)
-        val res = find(p)
-        println(res)
-        check(54 == res)
+    day(2023, 25) {
+        part1(54, "test", ::part1Attempt1)
+        part1(54, "test") { find2(parse(it)) }
+        part1(54, "test") { find3(parse(it)) }
+        part1(54, "test") { find4(parse(it)) }
+        part1(543834, "input") { find4(parse(it)) }
     }
-
-    run {
-        val testInput = readInput(2023, 25, "test")
-        val p = parse(testInput)
-        val res = find2(p)
-        println(res)
-        check(54 == res)
-    }
-
-    run {
-        val testInput = readInput(2023, 25, "test")
-        val p = parse(testInput)
-        val res = find3(p)
-        println(res)
-        check(54 == res)
-    }
-
-    run {
-        val testInput = readInput(2023, 25, "test")
-        val p = parse(testInput)
-        val res = find4(p)
-        println(res)
-        check(54 == res)
-    }
-
-    run {
-        val input = readInput(2023, 25)
-        val p = parse(input)
-        val res = find4(p)
-        println(res)
-        check(54 == res)
-    }
-
 }

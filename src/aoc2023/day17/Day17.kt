@@ -1,5 +1,6 @@
 package aoc2023.day17
 
+import day
 import readInput
 import util.*
 
@@ -129,45 +130,15 @@ private fun search2(map: Map): Int {
     return loss
 }
 
+private fun part1(input: List<String>) = search(parse(input))
+private fun part2(input: List<String>) = search2(parse(input))
+
 fun main() {
-
-    run {
-        val testInput = readInput(2023, 17, "example")
-        val map = parse(testInput)
-        val res = search(map)
-        println(res)
-        check(102 == res)
-    }
-
-    run {
-        val testInput = readInput(2023, 17)
-        val map = parse(testInput)
-        val res = search(map)
-        println(res)
-        check(1013 == res)
-    }
-
-    run {
-        val testInput = readInput(2023, 17, "example")
-        val map = parse(testInput)
-        val res = search2(map)
-        println(res)
-        check(94 == res)
-    }
-
-    run {
-        val testInput = readInput(2023, 17, "example2")
-        val map = parse(testInput)
-        val res = search2(map)
-        println(res)
-        check(71 == res)
-    }
-
-    run {
-        val testInput = readInput(2023, 17)
-        val map = parse(testInput)
-        val res = search2(map)
-        println(res)
-        check(1215 == res)
+    day(2023, 17) {
+        part1(102, "example", ::part1)
+        part1(1013, "input", ::part1)
+        part2(94, "example", ::part2)
+        part2(71, "example2", ::part2)
+        part2(1215, "input", ::part2)
     }
 }

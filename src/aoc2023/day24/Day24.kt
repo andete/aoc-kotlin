@@ -1,5 +1,6 @@
 package aoc2023.day24
 
+import day
 import readInput
 import kotlin.math.sign
 import kotlin.math.sqrt
@@ -76,20 +77,14 @@ private fun part1(hails: List<Hail>, range: ClosedFloatingPointRange<Double> = 7
 }
 
 fun main() {
-
-    run {
-        val testInput = readInput(2023, 24, "test")
-        val hails = parse(testInput)
-        val res = part1(hails)
-        println(res)
-        check(2L == res)
-    }
-
-    run {
-        val testInput = readInput(2023, 24)
-        val hails = parse(testInput)
-        val res = part1(hails, 200000000000000.0..400000000000000.0)
-        println(res)
-        check(13149L == res)
+    day(2023, 24) {
+       part1(2L, "test") {
+           val hails = parse(it)
+           part1(hails)
+       }
+        part2(13149L, "input") {
+            val hails = parse(it)
+            part1(hails, 200000000000000.0..400000000000000.0)
+        }
     }
 }
