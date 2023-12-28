@@ -1,6 +1,6 @@
-package be.damad.aoc2023.aoc15
+package aoc2023.day15
 
-private val testData = "rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7".split(',')
+import day
 
 private fun hash(data: String): Int {
     var i = 0
@@ -54,26 +54,18 @@ private fun calculate(data: List<String>): Int {
 }
 
 fun main() {
-    run {
-        val hs = testData.map { hash(it) }
-        println(hs)
-        check(1320 == hs.sum())
-    }
-    run {
-        val res = aoc15data.sumOf { hash(it) }
-        println(res)
-        check(513172 == res)
-    }
-
-    run {
-        val res = calculate(testData)
-        println(res)
-        check(res == 145)
-    }
-
-    run {
-        val res = calculate(aoc15data)
-        println(res)
-        check(res == 237806)
+    day(2023, 15) {
+        part1(1320, "test") {
+            it[0].split(',').sumOf { hash(it) }
+        }
+        part1(513172, "input") {
+            it[0].split(',').sumOf { hash(it) }
+        }
+        part2(145, "test") {
+            calculate(it[0].split(','))
+        }
+        part2(237806, "input") {
+            calculate(it[0].split(','))
+        }
     }
 }
