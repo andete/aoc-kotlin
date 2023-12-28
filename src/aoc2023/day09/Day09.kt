@@ -1,8 +1,6 @@
-package be.damad.aoc2023.aoc09
+package aoc2023.day09
 
-private val testData = """0 3 6 9 12 15
-1 3 6 10 15 21
-10 13 16 21 30 45""".split('\n')
+import day
 
 private fun reduce(input: List<Long>): List<Long> {
     val result = mutableListOf<Long>()
@@ -10,16 +8,6 @@ private fun reduce(input: List<Long>): List<Long> {
         result.add(input[index + 1] - input[index])
     }
     return result
-}
-
-private fun analyse(input: List<Long>): Long {
-    val ranges = calculateRanges(input)
-    val rev = ranges.reversed()
-    rev[0].add(0)
-    for (i in 1 until rev.size) {
-        rev[i].add(rev[i-1].last() + rev[i].last())
-    }
-    return rev.last().last()
 }
 
 private fun calculateRanges(input: List<Long>): MutableList<MutableList<Long>> {
@@ -33,6 +21,16 @@ private fun calculateRanges(input: List<Long>): MutableList<MutableList<Long>> {
         }
     }
     return ranges
+}
+
+private fun analyse(input: List<Long>): Long {
+    val ranges = calculateRanges(input)
+    val rev = ranges.reversed()
+    rev[0].add(0)
+    for (i in 1 until rev.size) {
+        rev[i].add(rev[i-1].last() + rev[i].last())
+    }
+    return rev.last().last()
 }
 
 private fun analyse2(input: List<Long>): Long {
@@ -53,19 +51,11 @@ private fun calculate(data: List<String>, analyse: (List<Long>) -> Long): Long {
 }
 
 fun main() {
-    val res = calculate(testData, ::analyse)
-    println(res)
-    check(114L == res)
+    day(2023, 9) {
+        part1(114L, "example") { calculate(it, ::analyse) }
+        part1(1853145119L, "input") { calculate(it, ::analyse) }
+        part2(2L, "example") { calculate(it, ::analyse2) }
+        part2(923L, "input") { calculate(it, ::analyse2) }
 
-    val res1 = calculate(aoc09data, ::analyse)
-    println(res1)
-    check(1853145119L == res1)
-
-    val res2 = calculate(testData, ::analyse2)
-    println(res2)
-    check(2L == res2)
-
-    val res3 = calculate(aoc09data, ::analyse2)
-    println(res3)
-    check(923L == res3)
+    }
 }
