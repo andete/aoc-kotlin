@@ -1,5 +1,9 @@
 package util
 
+interface DeepCopyable<T> {
+    fun deepCopy(): T
+}
+
 data class Maze<L>(val rows: List<List<L>>) where L : Located, L : CharProvider {
 
     val ySize = rows.size
@@ -38,9 +42,20 @@ data class Maze<L>(val rows: List<List<L>>) where L : Located, L : CharProvider 
     fun neighbours2(cell: L): List<Pair<Direction2, L>> {
         return Direction2.entries.mapNotNull { dir -> at(cell.location + dir)?.let { dir to it } }
     }
+
+    fun deepCopy(): Maze<L> =
+        Maze(rows = rows.map { row ->
+            row.map { t ->
+                if (t is DeepCopyable<*>) {
+                    t.deepCopy() as L
+                } else {
+                    t
+                }
+            }
+        })
 }
 
-data class LocatedItem<T>(override val location: Location, var t: T) : Located, CharProvider {
+data class LocatedItem<T>(override val location: Location, var t: T) : Located, CharProvider, DeepCopyable<LocatedItem<T>> {
     override fun toChar() = if (t is Char) {
         "$t"
     } else if (t is WithChar) {
@@ -48,6 +63,15 @@ data class LocatedItem<T>(override val location: Location, var t: T) : Located, 
         "${t2.c}"
     } else {
         "$t"
+    }
+
+    override fun deepCopy(): LocatedItem<T> {
+        val newT = if (t is DeepCopyable<*>) {
+            (t as DeepCopyable<T>).deepCopy()
+        } else {
+            t
+        }
+        return copy(t = newT)
     }
 
 }

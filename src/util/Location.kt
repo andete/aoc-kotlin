@@ -35,6 +35,9 @@ enum class Direction(val location: Location) {
         East -> West
         West -> East
     }
+
+    val x get() = location.x
+    val y get() = location.y
 }
 
 interface Located {
