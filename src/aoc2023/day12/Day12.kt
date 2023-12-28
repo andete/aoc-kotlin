@@ -1,13 +1,6 @@
-package be.damad.aoc2023.aoc12
+package aoc2023.day12
 
-// import be.damad.aoc2023.aoc12.data.aoc12data
-
-private val testData = """???.### 1,1,3
-.??..??...?##. 1,1,3
-?#?#?#?#?#?#?#? 1,3,1,6
-????.#...#... 4,1,1
-????.######..#####. 1,6,5
-?###???????? 3,2,1""".split('\n')
+import day
 
 private enum class SpringState(val c: Char) {
     OK('.'),
@@ -51,11 +44,12 @@ private data class Record(val f: List<SpringState>, val sizes: List<Int>) {
         return this.copy(f = f.subList(0, i) + listOf(SpringState.OK) + f.subList(i + 1, f.size))
     }
 
-    val maybePossible: Boolean get() {
-        return sizes.all {
-            fit(it)
+    val maybePossible: Boolean
+        get() {
+            return sizes.all {
+                fit(it)
+            }
         }
-    }
 
     private fun fit(size: Int): Boolean {
         for (i in 0 until f.size - size + 1) {
@@ -261,36 +255,10 @@ private fun explodeOne(it: Record) = Record(
 )
 
 fun main() {
-    run {
-        val res = calculate(parse(testData))
-        println(res)
-        check(21L == res)
-    }
-
-    run {
-        val res = calculate3(parse(testData))
-        println(res)
-        check(21L == res.first)
-        check(525152L == res.second)
-    }
-
-    run {
-        val res = calculate4(parse(testData))
-        println(res)
-        check(21L == res.first)
-        check(525152L == res.second)
-    }
-
-    run {
-        val p = parse(aoc12data)
-        val res2 = calculate2(p)
-        println(res2)
-        check(8075L == res2)
-    }
-
-    run {
-        val res3 = calculate2(explode(parse(aoc12data)))
-        println(res3)
-        check(525152L == res3)
+    day(2023, 12) {
+        part1(21L, "test") { calculate(parse(it)) }
+        part1(21L, "test") { calculate2(parse(it)) }
+        part1(8075L, "input") { calculate2(parse(it)) }
+        // TODO part2
     }
 }
