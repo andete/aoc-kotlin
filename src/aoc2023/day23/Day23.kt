@@ -30,14 +30,8 @@ private enum class TileType(val c: Char, val d: Direction? = null) {
     val pathOrSlope get() = this != Forest
 }
 
-private data class Cell(override val location: Location, val type: TileType) : Located {
-    override fun toChar(visited: List<Located>): String {
-        return if (this in visited) {
-            "\u001b[31m${type.c}\u001b[0m"
-        } else {
-            "${type.c}"
-        }
-    }
+private data class Cell(override val location: Location, val type: TileType) : Located, CharProvider {
+    override fun toChar() = "${type.c}"
 }
 
 private typealias Map = Maze<Cell>

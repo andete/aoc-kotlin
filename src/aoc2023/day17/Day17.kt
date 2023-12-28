@@ -1,32 +1,21 @@
 package aoc2023.day17
 
 import day
-import readInput
 import util.*
 
-private data class Cell(override val location: Location, val loss: Int) : Located {
-    override fun toChar(visited: List<Located>): String {
-        return if (this in visited) {
-            "\u001b[31m$loss\u001b[0m"
-        } else {
-            "$loss"
-        }
-    }
-}
 
-
-private typealias Map = Maze<Cell>
+private typealias Map = ItemMaze<Int>
 
 private fun parse(input: List<String>): Map {
     val cells = input.mapIndexed { y, line ->
         line.mapIndexed { x, c ->
-            Cell(Location(x, y), "$c".toInt())
+            "$c".toInt()
         }
     }
-    return Map(cells)
+    return makeItemMaze(cells)
 }
 
-private data class WrappedCell(val cell: Cell, val direction: Direction?, val lastDirectionSteps: Int?) {
+private data class WrappedCell(val cell: LocatedItem<Int>, val direction: Direction?, val lastDirectionSteps: Int?) {
     override fun equals(other: Any?): Boolean {
         return when (other) {
             is WrappedCell -> {
@@ -36,6 +25,7 @@ private data class WrappedCell(val cell: Cell, val direction: Direction?, val la
                     cell == other.cell
                 }
             }
+
             else -> false
         }
     }
@@ -51,7 +41,7 @@ private data class WrappedCell(val cell: Cell, val direction: Direction?, val la
 private fun search(map: Map): Int {
     val start = WrappedCell(map.at(0, 0)!!, null, 0)
     val end = WrappedCell(map.at(map.xSize - 1, map.ySize - 1)!!, null, null)
-    fun cost(c: WrappedCell, d: WrappedCell) = d.cell.loss
+    fun cost(c: WrappedCell, d: WrappedCell) = d.cell.t
     fun neighbours(c: WrappedCell, visited: List<WrappedCell>): List<WrappedCell> {
         // if only one, visited is our starting cell, so just take all the neighbours
         if (visited.size == 1) {
@@ -72,23 +62,25 @@ private fun search(map: Map): Int {
             }
         }
     }
+
     fun heuristic(c: WrappedCell): Int {
         return map.xSize - c.cell.location.x + map.ySize - c.cell.location.y
     }
-    fun show(visited: List<Cell>) {
+
+    fun show(visited: List<LocatedItem<Int>>) {
         map.show(visited)
     }
 
     val path = AStar.path(start, end, ::cost, ::neighbours, show = {})
     map.show(path.map { it.cell })
-    val loss = path.sumOf { it.cell.loss } - start.cell.loss
+    val loss = path.sumOf { it.cell.t } - start.cell.t
     return loss
 }
 
 private fun search2(map: Map): Int {
     val start = WrappedCell(map.at(0, 0)!!, null, 0)
     val end = WrappedCell(map.at(map.xSize - 1, map.ySize - 1)!!, null, null)
-    fun cost(c: WrappedCell, d: WrappedCell) = d.cell.loss
+    fun cost(c: WrappedCell, d: WrappedCell) = d.cell.t
     fun neighbours(c: WrappedCell, visited: List<WrappedCell>): List<WrappedCell> {
         // if only one, visited is our starting cell, so just take all the neighbours
         if (visited.size == 1) {
@@ -103,7 +95,7 @@ private fun search2(map: Map): Int {
         }
         // if we move less then 4 steps in the same direction, we can only continue further in the same direction
         else if (c.lastDirectionSteps!! < 4) {
-            forbiddenDirections.addAll(Direction.entries.filter { it != lastDirection})
+            forbiddenDirections.addAll(Direction.entries.filter { it != lastDirection })
         }
         return map.neighbours(c.cell).filter { it.first !in forbiddenDirections }.mapNotNull {
             if (it.second == end.cell && (c.lastDirectionSteps < 3 || it.first != lastDirection)) {
@@ -117,16 +109,18 @@ private fun search2(map: Map): Int {
             }
         }
     }
+
     fun heuristic(c: WrappedCell): Int {
         return map.xSize - c.cell.location.x + map.ySize - c.cell.location.y
     }
-    fun show(visited: List<Cell>) {
+
+    fun show(visited: List<LocatedItem<Int>>) {
         map.show(visited)
     }
 
     val path = AStar.path(start, end, ::cost, ::neighbours, show = {})
     map.show(path.map { it.cell })
-    val loss = path.sumOf { it.cell.loss } - start.cell.loss
+    val loss = path.sumOf { it.cell.t } - start.cell.t
     return loss
 }
 

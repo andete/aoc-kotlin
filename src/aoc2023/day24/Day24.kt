@@ -82,7 +82,7 @@ fun main() {
            val hails = parse(it)
            part1(hails)
        }
-        part2(13149L, "input") {
+        part1(13149L, "input") {
             val hails = parse(it)
             part1(hails, 200000000000000.0..400000000000000.0)
         }

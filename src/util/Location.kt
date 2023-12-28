@@ -36,12 +36,12 @@ enum class Direction(val location: Location) {
     }
 }
 
-interface CharProvider {
-    fun toChar(visited: List<Located>): String
+interface Located {
+    val location: Location
 }
 
-interface Located: CharProvider {
-    val location: Location
+interface CharProvider {
+    fun toChar(): String
 }
 
 enum class Direction2(val location: Location) {
