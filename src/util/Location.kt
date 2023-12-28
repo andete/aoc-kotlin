@@ -1,6 +1,7 @@
 package util
 
 import kotlin.math.E
+import kotlin.math.absoluteValue
 
 data class Location(val x: Int, val y: Int) {
     operator fun plus(other: Location) = Location(x + other.x, y + other.y)
