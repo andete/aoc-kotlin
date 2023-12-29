@@ -1,7 +1,7 @@
 package aoc2023.day11
 
 import day
-import util.Location
+import util.location.Location
 import util.combinationPairs
 import kotlin.math.absoluteValue
 import kotlin.math.max

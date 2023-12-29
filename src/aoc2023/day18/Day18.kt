@@ -1,47 +1,24 @@
-package be.damad.aoc2023.aoc18
+package aoc2023.day18
 
-import kotlin.math.absoluteValue
+import day
+import util.location.Direction4
+import util.location.Location
 import kotlin.math.max
 import kotlin.math.min
 
-private val testData = """R 6 (#70c710)
-D 5 (#0dc571)
-L 2 (#5713f0)
-D 2 (#d2c081)
-R 2 (#59c680)
-D 2 (#411b91)
-L 5 (#8ceee2)
-U 2 (#caa173)
-L 1 (#1b58a2)
-U 2 (#caa171)
-R 2 (#7807d2)
-U 3 (#a77fa3)
-L 2 (#015232)
-U 2 (#7a21e3)""".split('\n')
-
-private enum class Direction(val x: Long, val y: Long) {
-    D(0, 1),
-    U(0, -1),
-    L(-1, 0),
-    R(1, 0);
-
-    val location get() = Location(x, y)
-}
-
-private data class Command(val direction: Direction, val amount: Long, val color: String)
-
-private data class Location(val x: Long, val y: Long) {
-    operator fun plus(other: Direction) = Location(x + other.x, y + other.y)
-    operator fun plus(other: Location) = Location(x + other.x, y + other.y)
-
-    operator fun times(i: Long) = Location(x * i, y * i)
-
-}
+private data class Command(val direction: Direction4, val amount: Long, val color: String)
 
 private fun parse(data: List<String>): List<Command> {
     return data.map { line ->
         val s1 = line.split(' ')
-        Command(Direction.valueOf(s1[0]), s1[1].toLong(), s1[2])
+        val d = when (s1[0]) {
+            "L" -> Direction4.West
+            "R" -> Direction4.East
+            "U" -> Direction4.North
+            "D" -> Direction4.South
+            else -> error("unknown direction ${s1[0]}")
+        }
+        Command(d, s1[1].toLong(), s1[2])
     }
 }
 
@@ -51,11 +28,11 @@ private fun parse2(data: List<String>): List<Command> {
         val s2 = s1[3]
         val hex = s2.substring(0, 5)
         val dir = s2.last()
-        val direction = when(dir) {
-            '0' -> Direction.R
-            '1' -> Direction.D
-            '2' -> Direction.L
-            '3' -> Direction.U
+        val direction = when (dir) {
+            '0' -> Direction4.East
+            '1' -> Direction4.South
+            '2' -> Direction4.West
+            '3' -> Direction4.North
             else -> error("unknown direction")
         }
         val amount = hex.toLong(16)
@@ -110,7 +87,7 @@ private interface Lagoon {
     val cells: List<List<Cell>>
 
     fun at(x: Int, y: Int) = cells.getOrNull(y)?.getOrNull(x)
-    fun at(l: Location) = cells.getOrNull(l.y.toInt())?.getOrNull(l.x.toInt())
+    fun at(l: Location) = cells.getOrNull(l.y)?.getOrNull(l.x)
 
     val digSize: Long
 }
@@ -130,7 +107,7 @@ private data class Lagoon1(override val cells: List<List<Cell1>>) : Lagoon {
     override val digSize get() = cells.flatten().count { it.state == CellState.DUG }.toLong()
 }
 
-private data class Lagoon2(override val cells: List<List<Cell2>>, val xn: List<Long>, val yn: List<Long>) : Lagoon {
+private data class Lagoon2(override val cells: List<List<Cell2>>, val xn: List<Int>, val yn: List<Int>) : Lagoon {
 
     override val ySize = cells.size
     override val xSize = cells[0].size
@@ -182,25 +159,25 @@ private fun toLagoon2(corners: List<Location>, commands: List<Command>): Lagoon2
     val yn = corners.flatMap { listOf(it.y, it.y + 1) }.distinct().sorted()
     val cells = (0 until (yn.size - 1)).map { y ->
         (0 until (xn.size - 1)).map { x ->
-            val l = Location(x.toLong(), y.toLong())
+            val l = Location(x, y)
             Cell2(l, CellState.UNKNOWN, 0)
         }
     }
     var location = corners[0]
-    var location2 = Location(xn.indexOf(location.x).toLong(), yn.indexOf(location.y).toLong())
+    var location2 = Location(xn.indexOf(location.x), yn.indexOf(location.y))
     for (command in commands) {
         location += command.direction.location * command.amount
-        val newLocation2 = Location(xn.indexOf(location.x).toLong(), yn.indexOf(location.y).toLong())
-        val xMin = min(newLocation2.x, location2.x).toInt()
-        val xMax = max(newLocation2.x, location2.x).toInt()
-        val yMin = min(newLocation2.y, location2.y).toInt()
-        val yMax = max(newLocation2.y, location2.y).toInt()
+        val newLocation2 = Location(xn.indexOf(location.x), yn.indexOf(location.y))
+        val xMin = min(newLocation2.x, location2.x)
+        val xMax = max(newLocation2.x, location2.x)
+        val yMin = min(newLocation2.y, location2.y)
+        val yMax = max(newLocation2.y, location2.y)
         for (x in xMin..xMax) {
             for (y in yMin..yMax) {
-                val x2 = xn[x+1] - xn[x]
-                val y2 = yn[y+1] - yn[y]
+                val x2 = xn[x + 1] - xn[x]
+                val y2 = yn[y + 1] - yn[y]
                 cells[y][x].state = CellState.DUG
-                cells[y][x].surface = x2 * y2
+                cells[y][x].surface = x2.toLong() * y2
             }
             location2 = newLocation2
         }
@@ -211,25 +188,27 @@ private fun toLagoon2(corners: List<Location>, commands: List<Command>): Lagoon2
 
 private fun detectExterior(lagoon: Lagoon) {
     for (x in 0 until lagoon.xSize) {
-        tryFillOutSide(lagoon, lagoon.at(x, 0))
-        tryFillOutSide(lagoon, lagoon.at(x, lagoon.ySize - 1))
+        tryFillOutSide(lagoon, lagoon.at(x, 0)!!)
+        tryFillOutSide(lagoon, lagoon.at(x, lagoon.ySize - 1)!!)
     }
     for (y in 0 until lagoon.ySize) {
-        tryFillOutSide(lagoon, lagoon.at(0, y))
-        tryFillOutSide(lagoon, lagoon.at(lagoon.xSize - 1, y))
+        tryFillOutSide(lagoon, lagoon.at(0, y)!!)
+        tryFillOutSide(lagoon, lagoon.at(lagoon.xSize - 1, y)!!)
     }
 }
 
-private fun tryFillOutSide(lagoon: Lagoon, at: Cell?) {
-    if (at == null) {
-        return
-    }
-    if (at.state != CellState.UNKNOWN) {
-        return
-    }
-    at.state = CellState.OUTSIDE
-    for (entry in Direction.entries) {
-        tryFillOutSide(lagoon, lagoon.at(at.location + entry))
+private fun tryFillOutSide(lagoon: Lagoon, at: Cell) {
+    val candidates = mutableListOf(at)
+    if (at.state == CellState.DUG) { return }
+    val visited = hashSetOf<Cell>()
+    while (candidates.isNotEmpty()) {
+        val candidate = candidates.removeAt(0)
+        visited.add(candidate)
+        candidate.state = CellState.OUTSIDE
+        val n = Direction4.entries.mapNotNull {
+            lagoon.at(candidate.location + it)
+        }.filter { it.state != CellState.DUG && it !in visited && it !in candidates }
+        candidates.addAll(n)
     }
 }
 
@@ -247,76 +226,34 @@ private fun fillInside2(lagoon: Lagoon2) {
             cell.state = CellState.DUG
             val x = lagoon.xn[(cell.location.x + 1).toInt()] - lagoon.xn[(cell.location.x).toInt()]
             val y = lagoon.yn[(cell.location.y + 1).toInt()] - lagoon.yn[(cell.location.y).toInt()]
-            cell.surface = x * y
+            cell.surface = x.toLong() * y
         }
     }
 }
 
+private fun part1(data: List<String>): Long {
+    val p = parse(data)
+    val corners = corners(p)
+    val lagoon = toLagoon2(corners, p)
+    detectExterior(lagoon)
+    fillInside2(lagoon)
+    return lagoon.digSize
+}
+
+private fun part2(data: List<String>): Long {
+    val p = parse2(data)
+    val corners = corners(p)
+    val lagoon = toLagoon2(corners, p)
+    detectExterior(lagoon)
+    fillInside2(lagoon)
+    return lagoon.digSize
+}
+
 fun main() {
-    run {
-        val p = parse(testData)
-        println(p)
-        val visited = follow(p)
-        println(visited)
-        val lagoon = toLagoon1(visited)
-        check(38L == lagoon.digSize)
-        detectExterior(lagoon)
-        fillInside(lagoon)
-        println(lagoon.digSize)
-        check(62L == lagoon.digSize)
-    }
-
-    run {
-        val p = parse(aoc18data)
-        val visited = follow(p)
-        val lagoon = toLagoon1(visited)
-        println(lagoon.digSize)
-        detectExterior(lagoon)
-        fillInside(lagoon)
-        println(lagoon.digSize)
-        check(33491L == lagoon.digSize)
-    }
-
-    run {
-        val p = parse(testData)
-        val corners = corners(p)
-        val lagoon = toLagoon2(corners, p)
-        check(38L == lagoon.digSize)
-        detectExterior(lagoon)
-        fillInside2(lagoon)
-        println(lagoon.digSize)
-        check(62L == lagoon.digSize)
-    }
-
-    run {
-        val p = parse(aoc18data)
-        val corners = corners(p)
-        val lagoon = toLagoon2(corners, p)
-        println(lagoon.digSize)
-        check(3090L == lagoon.digSize)
-        detectExterior(lagoon)
-        fillInside2(lagoon)
-        println(lagoon.digSize)
-        check(33491L == lagoon.digSize)
-    }
-
-    run {
-        val p = parse2(testData)
-        val corners = corners(p)
-        val lagoon = toLagoon2(corners, p)
-        detectExterior(lagoon)
-        fillInside2(lagoon)
-        println(lagoon.digSize)
-        check(952408144115L == lagoon.digSize)
-    }
-
-    run {
-        val p = parse2(aoc18data)
-        val corners = corners(p)
-        val lagoon = toLagoon2(corners, p)
-        detectExterior(lagoon)
-        fillInside2(lagoon)
-        println(lagoon.digSize)
-        check(87716969654406L == lagoon.digSize)
+    day(2023, 18) {
+        part1(62, "test", ::part1)
+        part1(33491, "input", ::part1)
+        part1(952408144115L, "test", ::part2)
+        part1(87716969654406L, "input", ::part2)
     }
 }

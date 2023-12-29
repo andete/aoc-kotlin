@@ -1,7 +1,13 @@
 package util
 
+import util.location.*
+
 interface DeepCopyable<T> {
     fun deepCopy(): T
+}
+
+interface CharProvider {
+    fun toChar(): String
 }
 
 data class Maze<L>(val rows: List<List<L>>) where L : Located, L : CharProvider {
@@ -35,12 +41,12 @@ data class Maze<L>(val rows: List<List<L>>) where L : Located, L : CharProvider 
     fun peekWestOf(cell: L) = at(cell.location.x - 1, cell.location.y)
     fun peekEastOf(cell: L) = at(cell.location.x + 1, cell.location.y)
 
-    fun neighbours(cell: L): List<Pair<Direction, L>> {
-        return Direction.entries.mapNotNull { dir -> at(cell.location + dir)?.let { dir to it } }
+    fun neighbours(cell: L): List<Pair<Direction4, L>> {
+        return Direction4.entries.mapNotNull { dir -> at(cell.location + dir)?.let { dir to it } }
     }
 
-    fun neighbours2(cell: L): List<Pair<Direction2, L>> {
-        return Direction2.entries.mapNotNull { dir -> at(cell.location + dir)?.let { dir to it } }
+    fun neighbours2(cell: L): List<Pair<Direction8, L>> {
+        return Direction8.entries.mapNotNull { dir -> at(cell.location + dir)?.let { dir to it } }
     }
 
     fun deepCopy(): Maze<L> =

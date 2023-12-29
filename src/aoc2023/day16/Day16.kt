@@ -2,6 +2,7 @@ package aoc2023.day16
 
 import day
 import util.*
+import util.location.Direction4
 import kotlin.math.max
 
 private enum class TileType(override val c: Char): WithChar {
@@ -13,36 +14,36 @@ private enum class TileType(override val c: Char): WithChar {
 }
 
 private val tileMap = mapOf(
-    (Direction.North to TileType.EMPTY) to listOf(Direction.North),
-    (Direction.South to TileType.EMPTY) to listOf(Direction.South),
-    (Direction.East to TileType.EMPTY) to listOf(Direction.East),
-    (Direction.West to TileType.EMPTY) to listOf(Direction.West),
+    (Direction4.North to TileType.EMPTY) to listOf(Direction4.North),
+    (Direction4.South to TileType.EMPTY) to listOf(Direction4.South),
+    (Direction4.East to TileType.EMPTY) to listOf(Direction4.East),
+    (Direction4.West to TileType.EMPTY) to listOf(Direction4.West),
 
-    (Direction.North to TileType.NS) to listOf(Direction.North),
-    (Direction.South to TileType.NS) to listOf(Direction.South),
-    (Direction.East to TileType.NS) to listOf(Direction.North, Direction.South),
-    (Direction.West to TileType.NS) to listOf(Direction.North, Direction.South),
+    (Direction4.North to TileType.NS) to listOf(Direction4.North),
+    (Direction4.South to TileType.NS) to listOf(Direction4.South),
+    (Direction4.East to TileType.NS) to listOf(Direction4.North, Direction4.South),
+    (Direction4.West to TileType.NS) to listOf(Direction4.North, Direction4.South),
 
-    (Direction.West to TileType.WE) to listOf(Direction.West),
-    (Direction.East to TileType.WE) to listOf(Direction.East),
-    (Direction.North to TileType.WE) to listOf(Direction.West, Direction.East),
-    (Direction.South to TileType.WE) to listOf(Direction.West, Direction.East),
+    (Direction4.West to TileType.WE) to listOf(Direction4.West),
+    (Direction4.East to TileType.WE) to listOf(Direction4.East),
+    (Direction4.North to TileType.WE) to listOf(Direction4.West, Direction4.East),
+    (Direction4.South to TileType.WE) to listOf(Direction4.West, Direction4.East),
 
-    (Direction.North to TileType.NWSE) to listOf(Direction.West),
-    (Direction.South to TileType.NWSE) to listOf(Direction.East),
-    (Direction.East to TileType.NWSE) to listOf(Direction.South),
-    (Direction.West to TileType.NWSE) to listOf(Direction.North),
+    (Direction4.North to TileType.NWSE) to listOf(Direction4.West),
+    (Direction4.South to TileType.NWSE) to listOf(Direction4.East),
+    (Direction4.East to TileType.NWSE) to listOf(Direction4.South),
+    (Direction4.West to TileType.NWSE) to listOf(Direction4.North),
 
-    (Direction.North to TileType.SWNE) to listOf(Direction.East),
-    (Direction.South to TileType.SWNE) to listOf(Direction.West),
-    (Direction.East to TileType.SWNE) to listOf(Direction.North),
-    (Direction.West to TileType.SWNE) to listOf(Direction.South),
+    (Direction4.North to TileType.SWNE) to listOf(Direction4.East),
+    (Direction4.South to TileType.SWNE) to listOf(Direction4.West),
+    (Direction4.East to TileType.SWNE) to listOf(Direction4.North),
+    (Direction4.West to TileType.SWNE) to listOf(Direction4.South),
 
     )
 
 private data class Tile(
     val t: TileType,
-    var directions: MutableList<Direction> = mutableListOf()
+    var directions: MutableList<Direction4> = mutableListOf()
 ): DeepCopyable<Tile> {
     val energized get() = directions.isNotEmpty()
 
@@ -53,7 +54,7 @@ private typealias Contraption = ItemMaze<Tile>
 
 private val Contraption.energized get() = rows.sumOf { it.count { it.t.energized } }
 
-private fun beam(contraption: Contraption, x: Int = 0, y: Int = 0, direction: Direction = Direction.East) {
+private fun beam(contraption: Contraption, x: Int = 0, y: Int = 0, direction: Direction4 = Direction4.East) {
     val cell = contraption.at(x, y) ?: return
     if (direction in cell.t.directions) { return }
     cell.t.directions.add(direction)
@@ -67,22 +68,22 @@ private fun calculate2(contraption: Contraption): Int {
     var m = 0
     for (x in contraption.xIndices) {
         val x1 = contraption.deepCopy()
-        beam(x1, x, 0, Direction.South)
+        beam(x1, x, 0, Direction4.South)
         m = max(m, x1.energized)
     }
     for (x in contraption.xIndices) {
         val x1 = contraption.deepCopy()
-        beam(x1, x, contraption.ySize - 1, Direction.North)
+        beam(x1, x, contraption.ySize - 1, Direction4.North)
         m = max(m, x1.energized)
     }
     for (y in contraption.yIndices) {
         val x1 = contraption.deepCopy()
-        beam(x1, 0, y, Direction.East)
+        beam(x1, 0, y, Direction4.East)
         m = max(m, x1.energized)
     }
     for (y in contraption.yIndices) {
         val x1 = contraption.deepCopy()
-        beam(x1, contraption.xSize - 1, y, Direction.West)
+        beam(x1, contraption.xSize - 1, y, Direction4.West)
         m = max(m, x1.energized)
     }
     return m

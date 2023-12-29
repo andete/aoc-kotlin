@@ -2,17 +2,20 @@ package aoc2023.day10
 
 import day
 import util.*
+import util.location.Direction4
+import util.location.Located
+import util.location.Location
 
-private enum class Pipe(val c: Char, val first: Direction, val second: Direction) {
-    EW('-', Direction.East, Direction.West),
-    NS('|', Direction.North, Direction.South),
-    NE('L', Direction.North, Direction.East),
-    NW('J', Direction.North, Direction.West),
-    SW('7', Direction.South, Direction.West),
-    SE('F', Direction.South, Direction.East);
+private enum class Pipe(val c: Char, val first: Direction4, val second: Direction4) {
+    EW('-', Direction4.East, Direction4.West),
+    NS('|', Direction4.North, Direction4.South),
+    NE('L', Direction4.North, Direction4.East),
+    NW('J', Direction4.North, Direction4.West),
+    SW('7', Direction4.South, Direction4.West),
+    SE('F', Direction4.South, Direction4.East);
 
     override fun toString() = "$c"
-    fun other(fromDirection: Direction) = if (fromDirection == first) {
+    fun other(fromDirection: Direction4) = if (fromDirection == first) {
         second
     } else {
         first
@@ -32,7 +35,8 @@ private enum class Pipe(val c: Char, val first: Direction, val second: Direction
     }
 }
 
-private data class Cell(override val location: Location, val pipe: Pipe?, val start: Boolean = false) : Located, CharProvider {
+private data class Cell(override val location: Location, val pipe: Pipe?, val start: Boolean = false) : Located,
+    CharProvider {
     override fun toChar() = "$char"
 
     override fun toString() = "(${location.x}, ${location.y}, $char)"
@@ -50,11 +54,11 @@ private data class Cell(override val location: Location, val pipe: Pipe?, val st
     }
 }
 
-private data class Arrival(val cell: Cell, val fromDirection: Direction) {
+private data class Arrival(val cell: Cell, val fromDirection: Direction4) {
     val toDirection = cell.pipe?.other(fromDirection)
 }
 
-private fun checkArrival(it: Cell, direction: Direction) =
+private fun checkArrival(it: Cell, direction: Direction4) =
     if (it.start || it.pipe?.directions?.contains(direction) == true) {
         Arrival(it, direction)
     } else {
@@ -98,11 +102,11 @@ private fun follow(maze: Field, start: Arrival): List<Arrival>? {
     return null
 }
 
-private fun Field.goDirection(cell: Cell, toDirection: Direction) = when (toDirection) {
-    Direction.North -> northOf(cell)
-    Direction.East -> eastOf(cell)
-    Direction.West -> westOf(cell)
-    Direction.South -> southOf(cell)
+private fun Field.goDirection(cell: Cell, toDirection: Direction4) = when (toDirection) {
+    Direction4.North -> northOf(cell)
+    Direction4.East -> eastOf(cell)
+    Direction4.West -> westOf(cell)
+    Direction4.South -> southOf(cell)
 }
 
 private fun calculate(maze: Field): Pair<Int, List<Arrival>> {
@@ -115,10 +119,10 @@ private fun calculate(maze: Field): Pair<Int, List<Arrival>> {
     return ((path.size) / 2) to path
 }
 
-private fun Field.northOf(cell: Cell) = peekNorthOf(cell)?.let { checkArrival(it, Direction.South) }
-private fun Field.southOf(cell: Cell) = peekSouthOf(cell)?.let { checkArrival(it, Direction.North) }
-private fun Field.eastOf(cell: Cell) = peekEastOf(cell)?.let { checkArrival(it, Direction.West) }
-private fun Field.westOf(cell: Cell) = peekWestOf(cell)?.let { checkArrival(it, Direction.East) }
+private fun Field.northOf(cell: Cell) = peekNorthOf(cell)?.let { checkArrival(it, Direction4.South) }
+private fun Field.southOf(cell: Cell) = peekSouthOf(cell)?.let { checkArrival(it, Direction4.North) }
+private fun Field.eastOf(cell: Cell) = peekEastOf(cell)?.let { checkArrival(it, Direction4.West) }
+private fun Field.westOf(cell: Cell) = peekWestOf(cell)?.let { checkArrival(it, Direction4.East) }
 
 private fun reduceMazeToPath(maze: Field, path: List<Cell>): Field {
     return Field(maze.rows.map {

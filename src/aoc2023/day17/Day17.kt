@@ -2,6 +2,7 @@ package aoc2023.day17
 
 import day
 import util.*
+import util.location.Direction4
 
 
 private typealias Map = ItemMaze<Int>
@@ -15,7 +16,7 @@ private fun parse(input: List<String>): Map {
     return makeItemMaze(cells)
 }
 
-private data class WrappedCell(val cell: LocatedItem<Int>, val direction: Direction?, val lastDirectionSteps: Int?) {
+private data class WrappedCell(val cell: LocatedItem<Int>, val direction: Direction4?, val lastDirectionSteps: Int?) {
     override fun equals(other: Any?): Boolean {
         return when (other) {
             is WrappedCell -> {
@@ -95,7 +96,7 @@ private fun search2(map: Map): Int {
         }
         // if we move less then 4 steps in the same direction, we can only continue further in the same direction
         else if (c.lastDirectionSteps!! < 4) {
-            forbiddenDirections.addAll(Direction.entries.filter { it != lastDirection })
+            forbiddenDirections.addAll(Direction4.entries.filter { it != lastDirection })
         }
         return map.neighbours(c.cell).filter { it.first !in forbiddenDirections }.mapNotNull {
             if (it.second == end.cell && (c.lastDirectionSteps < 3 || it.first != lastDirection)) {

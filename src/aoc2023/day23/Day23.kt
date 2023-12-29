@@ -1,8 +1,10 @@
 package aoc2023.day23
 
 import day
-import readInput
 import util.*
+import util.location.Direction4
+import util.location.Located
+import util.location.Location
 
 fun main() {
     day(2023, 23) {
@@ -16,15 +18,15 @@ fun main() {
     }
 }
 
-private enum class TileType(val c: Char, val d: Direction? = null) {
+private enum class TileType(val c: Char, val d: Direction4? = null) {
     Start('S'),
     End('E'),
     Path('.'),
     Forest('#'),
-    SlopeNorth('^', Direction.North),
-    SlopeSouth('v', Direction.South),
-    SlopeWest('<', Direction.West),
-    SlopeEast('>', Direction.East);
+    SlopeNorth('^', Direction4.North),
+    SlopeSouth('v', Direction4.South),
+    SlopeWest('<', Direction4.West),
+    SlopeEast('>', Direction4.East);
 
     val path get() = this != Forest && this.d == null
     val pathOrSlope get() = this != Forest
@@ -39,7 +41,8 @@ private typealias Map = Maze<Cell>
 private fun parse(input: List<String>): Map {
     val cells = input.mapIndexed { y, line ->
         line.mapIndexed { x, c ->
-            Cell(Location(x, y),
+            Cell(
+                Location(x, y),
                 TileType.entries.single { it.c == c })
         }
     }
