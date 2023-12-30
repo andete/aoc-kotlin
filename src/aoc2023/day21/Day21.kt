@@ -1,16 +1,6 @@
-package be.damad.aoc2023.aoc21
+package aoc2023.day21
 
-private val testData = """...........
-.....###.#.
-.###.##..#.
-..#.#...#..
-....#.#....
-.##..S####.
-.##..#...#.
-.......##..
-.##.#.####.
-.##..##.##.
-...........""".split('\n')
+import day
 
 private data class Plot(val x: Int, val y: Int, val rock: Boolean, val start: Boolean) {
     fun toStringForMap() = if (rock) {
@@ -90,26 +80,22 @@ private fun walk2(map: Map, amount: Int): List<Int> {
     return res
 }
 
+private fun part1(amount: Int, data: List<String>): Int {
+    val map = parse(data)
+    val q = walk(map, amount)
+    return q.last()
+}
+
+private fun part2(amount: Int, data: List<String>): Int {
+    val map = parse(data)
+    val q = walk2(map, amount)
+    return q.last()
+}
+
 fun main() {
-    run {
-        val map = parse(testData)
-        println(map)
-        val q = walk(map, 6)
-        println(q)
-        check(16 == q.last())
-    }
-
-    run {
-        val map = parse(aoc21data)
-        val q = walk(map, 64)
-        println(q)
-        check(3594 == q.last())
-    }
-
-    run {
-        val map = parse(testData)
-        val q = walk2(map, 1000)
-        println(q.last())
-        check(668697 == q.last())
+    day(2023, 21) {
+        part1(16, "example") { part1(6, it) }
+        part1(3594, "input") { part1(64, it) }
+        part1(668697, "example") { part2(1000, it) }
     }
 }

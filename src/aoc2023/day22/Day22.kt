@@ -1,16 +1,8 @@
-package be.damad.aoc2023.aoc22
+package aoc2023.day22
 
-import java.lang.StringBuilder
+import day
 import kotlin.math.max
 import kotlin.math.min
-
-private val testData = """1,0,1~1,2,1
-0,0,2~2,0,2
-0,2,3~2,2,3
-0,0,4~0,2,4
-2,0,5~2,2,5
-0,1,6~2,1,6
-1,1,8~1,1,9""".split('\n')
 
 private data class Location(val x: Int, val y: Int, val z: Int)
 
@@ -147,7 +139,7 @@ private fun safeToDisintegrateOne(space: Space, blocks: List<Block>, block: Bloc
     return safe
 }
 
-private fun part2(blocks: List<Block>): Int {
+private fun calculatePart2(blocks: List<Block>): Int {
     return blocks.sumOf { block ->
         val x = part2One(blocks, block)
         println("cascade ${block.i} $x")
@@ -161,44 +153,28 @@ private fun part2One(blocks: List<Block>, block: Block): Int {
     return drop(newSpace, blocks)
 }
 
-fun main() {
-    run {
-        val blocks = parse(testData)
-        println(blocks)
-        val space = space(blocks)
-        println(space)
-        drop(space, blocks)
-        println(space)
-        val res = safeToDisintegrate(space, blocks)
-        println(res)
-        check(5 == res)
-    }
-
-    run {
-        val blocks = parse(aoc22data)
-        val space = space(blocks)
-        drop(space, blocks)
-        val res = safeToDisintegrate(space, blocks)
-        println(res)
-        check(492 == res)
-    }
-
-    run {
-        val blocks = parse(testData)
-        val space = space(blocks)
-        drop(space, blocks)
-        val res = part2(blocks)
-        println(res)
-        check(7 == res)
-    }
-
-    run {
-        val blocks = parse(aoc22data)
-        val space = space(blocks)
-        drop(space, blocks)
-        val res = part2(blocks)
-        println(res)
-        check(7 == res)
-    }
+private fun part1(data: List<String>): Int {
+    val blocks = parse(data)
+    println(blocks)
+    val space = space(blocks)
+    println(space)
+    drop(space, blocks)
+    println(space)
+    return safeToDisintegrate(space, blocks)
 }
 
+private fun part2(data: List<String>): Int {
+    val blocks = parse(data)
+    val space = space(blocks)
+    drop(space, blocks)
+    return calculatePart2(blocks)
+}
+
+fun main() {
+    day(2023, 22) {
+        part1(5, "example", ::part1)
+        part1(492, "input", ::part1)
+        part2(7, "example", ::part2)
+        part2(7, "input", ::part2)
+    }
+}
