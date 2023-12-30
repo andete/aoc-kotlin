@@ -44,7 +44,8 @@ data class AocDay<T>(val year: Int, val day: Int) {
     }
 
     private fun part(i: Int, expected: T, name: String, lambda: (List<String>) -> T) {
-        val input = readInput(year, day, name)
+        val n2 = name.split(':')
+        val input = readInput(year, day, n2[0])
         val res = lambda(input)
         if (res == expected) {
             println("aoc$year/$day/$i: $name -> $res")
