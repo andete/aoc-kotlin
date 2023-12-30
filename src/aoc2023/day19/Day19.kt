@@ -1,27 +1,8 @@
-package be.damad.aoc2023.aoc19
+package aoc2023.day19
 
 import be.damad.aoc2023.util.longRangeIntersect
 import be.damad.aoc2023.util.minus
-import kotlin.math.max
-import kotlin.math.min
-
-private val testData = """px{a<2006:qkq,m>2090:A,rfg}
-pv{a>1716:R,A}
-lnx{m>1548:A,A}
-rfg{s<537:gd,x>2440:R,A}
-qs{s>3448:A,lnx}
-qkq{x<1416:A,crn}
-crn{x>2662:A,R}
-in{s<1351:px,qqz}
-qqz{s>2770:qs,m<1801:hdj,R}
-gd{a>3333:R,R}
-hdj{m>838:A,pv}
-
-{x=787,m=2655,a=1222,s=2876}
-{x=1679,m=44,a=2067,s=496}
-{x=2036,m=264,a=79,s=2244}
-{x=2461,m=1339,a=466,s=291}
-{x=2127,m=1623,a=2188,s=1013}""".split('\n')
+import day
 
 private enum class Category(val c: Char) {
     X('x'),
@@ -201,7 +182,7 @@ private fun applyWorkflows(workflows: List<Workflow>): List<PartRange> {
 }
 
 private fun applyWorkflow(result: MutableList<PartRange>, workflows: List<Workflow>, ranges: List<PartRange>, workflow: Workflow) {
-     for (range in ranges) {
+    for (range in ranges) {
         applyWorkflow(result, workflows, range, workflow)
     }
 }
@@ -237,46 +218,23 @@ private fun applyWorkflow(result: MutableList<PartRange>, workflows: List<Workfl
     }
 }
 
-fun main() {
-    run {
-        val (workflows, parts) = parse(testData)
-        println(workflows)
-        println(parts)
-        val accepted = parts.filter { accepted(it, workflows) }
-        println(accepted)
-        val res = accepted.sumOf { it.rating }
-        check(19114L == res)
-    }
-
-    run {
-        val (workflows, parts) = parse(aoc19data)
-        //println(workflows)
-        //println(parts)
-        val accepted = parts.filter { accepted(it, workflows) }
-        //println(accepted)
-        val res = accepted.sumOf { it.rating }
-        println(res)
-        check(432434L == res)
-    }
-
-    run {
-        val (workflows, parts) = parse(testData)
-        val ranges: List<PartRange> = applyWorkflows(workflows)
-        println(ranges)
-        val res = ranges.sumOf { it.rating }
-        println(res)
-        println(res - 167409079868000L)
-        check(167409079868000L == res)
-    }
-
-    run {
-        val (workflows, parts) = parse(aoc19data)
-        val ranges: List<PartRange> = applyWorkflows(workflows)
-        println(ranges)
-        val res = ranges.sumOf { it.rating }
-        println(res)
-        println(res - 132557544578569L)
-        check(132557544578569 == res)
-    }
+private fun part1(data: List<String>): Long {
+    val (workflows, parts) = parse(data)
+    val accepted = parts.filter { accepted(it, workflows) }
+    return accepted.sumOf { it.rating }
 }
 
+private fun part2(data: List<String>): Long {
+    val (workflows, parts) = parse(data)
+    val ranges = applyWorkflows(workflows)
+    return ranges.sumOf { it.rating }
+}
+
+fun main() {
+    day(2023, 19) {
+        part1(19114L, "example", ::part1)
+        part1(432434L, "input", ::part1)
+        part2(167409079868000L, "example", ::part2)
+        part2(132557544578569L, "input", ::part2)
+    }
+}
