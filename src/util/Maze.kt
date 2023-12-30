@@ -110,10 +110,8 @@ inline fun <reified T> Char.toEnum(): T where T : WithChar, T : Enum<T> {
     return c.first { it.c == this }
 }
 
-typealias EnumMaze<T> = ItemMaze<Enum<T>>
-
-inline fun <reified T> parseEnumMaze(input: List<String>): EnumMaze<T> where T : WithChar, T : Enum<T> {
-    return EnumMaze(input.mapIndexed { y, s ->
+inline fun <reified T> parseEnumMaze(input: List<String>): ItemMaze<T> where T : WithChar, T : Enum<T> {
+    return ItemMaze(input.mapIndexed { y, s ->
         s.mapIndexed { x, c ->
             val t: T = c.toEnum()
             LocatedItem(Location(x, y), t)

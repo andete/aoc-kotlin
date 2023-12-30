@@ -145,7 +145,7 @@ private enum class CellType(override val c: Char) : WithChar {
     override fun toString() = "$c"
 }
 
-private typealias Field2 = EnumMaze<CellType>
+private typealias Field2 = ItemMaze<CellType>
 
 private fun Field2.count(): Int {
     var res = 0

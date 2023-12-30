@@ -9,16 +9,16 @@ private enum class RockType(override val c: Char) : WithChar {
     SQUARE('#'),
 }
 
-private typealias Platform = EnumMaze<RockType>
+private typealias Platform = ItemMaze<RockType>
 
 private val Platform.load
     get() = rows.mapIndexed { index, cells ->
         cells.count { it.round } * (cells.size - index)
     }.sum()
 
-private val LocatedItem<Enum<RockType>>.round get() = t == RockType.ROUND
-private val LocatedItem<Enum<RockType>>.empty get() = t == RockType.EMPTY
-private val LocatedItem<Enum<RockType>>.square get() = t == RockType.SQUARE
+private val LocatedItem<RockType>.round get() = t == RockType.ROUND
+private val LocatedItem<RockType>.empty get() = t == RockType.EMPTY
+private val LocatedItem<RockType>.square get() = t == RockType.SQUARE
 
 private fun tiltNorth(platform: Platform) {
     for (repeat in platform.yIndices) {
