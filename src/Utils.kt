@@ -55,6 +55,13 @@ data class AocDay<T>(val year: Int, val day: Int) {
         check(expected == res)
     }
 
+    fun <U>test(testName: String, name: String, lambda: (List<String>) -> U) {
+        val n2 = name.split(':')
+        val input = readInput(year, day, n2[0])
+        val res = lambda(input)
+        println("aoc$year/$day/$testName: $name -> $res")
+    }
+
     private fun part(name: String, i: Int, expected: T, lambda: () -> T) {
         val res = lambda()
         if (res == expected) {

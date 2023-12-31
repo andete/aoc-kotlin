@@ -19,12 +19,15 @@ data class Maze<L>(val rows: List<List<L>>) where L : Located, L : CharProvider 
     val yIndices get() = rows.indices
     val xIndices get() = rows[0].indices
 
-    fun show(visited: List<L> = emptyList()) {
+    var visitedChar: Char? = null
+
+    fun show(visited: Collection<L> = emptyList()) {
         for (row in rows) {
             println(row.joinToString("") {
                 val c = it.toChar()
                 if (it in visited) {
-                    "\u001B[31m$c\u001B[0m"
+                    val c2 = visitedChar ?: c
+                    "\u001B[31m$c2\u001B[0m"
                 } else {
                     c
                 }
