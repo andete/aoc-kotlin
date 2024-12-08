@@ -22,12 +22,12 @@ private fun parse(games: List<String>): List<Game> {
     return games.map {
         val subs1 = it.split(':')
         val id = subs1[0].split(' ')[1].toInt()
-        val drawsText = subs1[1].split(';').map { it.strip() }
+        val drawsText = subs1[1].split(';').map { it.trim() }
         val draws = drawsText.map {
             var red: Int = 0;
             var green: Int = 0;
             var blue: Int = 0
-            val colors = it.split(',').map { it.strip() }
+            val colors = it.split(',').map { it.trim() }
             for (color in colors) {
                 val c = color.split(' ')
                 val amount = c[0].toInt()

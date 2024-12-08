@@ -11,6 +11,9 @@ private enum class SpringState(val c: Char) {
     override fun toString() = "$c"
     val failPossible get() = this == FAIL || this == UNKNOWN
     val okPossible get() = this == OK || this == UNKNOWN
+
+    val ok get() = this == OK
+    val fail get() = this == FAIL || this == ASSIGN_FAIL
 }
 
 private data class Record(val f: List<SpringState>, val sizes: List<Int>) {
@@ -126,34 +129,108 @@ private fun possibilities2(record: Record): Int {
     return fittings.sumOf { possibilities2(it) }
 }
 
-private fun possibilities3(record: Record): Int {
-    if (record.sizes.isEmpty()) {
-        return if (record.valid) {
-            1
-        } else {
-            0
-        }
-    }
-    val splitted = mutableListOf<List<SpringState>>()
-    val add = mutableListOf<SpringState>()
-    for (c in record.f) {
-        if (c == SpringState.OK) {
-            if (add.isNotEmpty()) {
-                splitted.add(add.toList())
-                add.clear()
+private fun subPartsForRecord(record: Record): List<Record> {
+    val reduced = mutableListOf<Record>()
+    val current = mutableListOf<SpringState>()
+    for (f in record.f) {
+        if (f == SpringState.OK) {
+            if (current.isNotEmpty()) {
+                reduced.add(Record(current.toList(), emptyList()))
             }
+            current.clear()
         } else {
-            add.add(c)
+            current.add(f)
         }
     }
-    if (add.isNotEmpty()) {
-        splitted.add(add.toList())
-        add.clear()
+    if (current.isNotEmpty()) {
+        reduced.add(Record(current.toList(), emptyList()))
     }
-    val (size, record2) = record.takeSize()
-    val fittings: List<Record> = fittings(record2, size)
-    return fittings.sumOf { possibilities2(it) }
+    return reduced
 }
+
+//private fun possibleAmountsOfSizesForSubPart(sub: Record, sizes: List<Int>): Map<Int, Int> {
+//    val res = mutableMapOf<Int, Int>()
+//    for (i in sizes.indices) {
+//        val s = sizes.subList(0, i + 1)
+//        val j = possibleToFitForSubRecord(sub, s)
+//        if (j != null) {
+//            res[i + 1] = j
+//        }
+//    }
+//    return res
+//}
+
+private fun possibilitiesToFitForSubRecord(sub: Record, size: Int): List<Record> {
+    val result = mutableListOf<Record>()
+    for (i in 0..sub.f.size - size) {
+        val okAtEntries = sub.f.subList(i, i + size).all { it.failPossible }
+        val beforeOk = sub.f.getOrNull(i - 1)?.let { it.okPossible } ?: true
+        val afterOk = sub.f.getOrNull(i + size)?.let { it.okPossible } ?: true
+        if (okAtEntries && beforeOk && afterOk) {
+            val newF = sub.f.mapIndexed { index, springState ->
+                if (index in i until i + size) {
+                    if (springState == SpringState.UNKNOWN) {
+                        SpringState.ASSIGN_FAIL
+                    } else {
+                        springState
+                    }
+                } else if (index == i - 1 || index == i + size) {
+                    SpringState.OK
+                } else {
+                    springState
+                }
+            }
+            result.add(Record(newF, emptyList()))
+        }
+    }
+    return result
+}
+
+private fun possibleToFitForSubRecord(sub: Record, sizes: List<Int>): List<Record>? {
+    var res: MutableList<Record>? = null
+    if (sizes.isEmpty()) {
+        return emptyList()
+    }
+    val size = sizes.first()
+    val rem = sizes.subList(1, sizes.size)
+    for (fit in possibilitiesToFitForSubRecord(sub, size)) {
+        val j = possibleToFitForSubRecord(fit, rem)
+        if (j != null) {
+            for (k in j) {
+                val existing = res?.contains(k) ?: false
+                if (!existing) {
+                    res = res ?: mutableListOf()
+                    res.add(k)
+                }
+            }
+        }
+    }
+    return res
+}
+
+//private fun handleSubParts(subParts: List<Record>, sizes: List<Int>): Int {
+//    if (subParts.isEmpty() && sizes.isEmpty()) {
+//        return 1
+//    }
+//    if (sizes.isEmpty() || subParts.isEmpty()) {
+//        return 0
+//    }
+//    var res = 0
+//    val firstSubPart = subParts.first()
+//    val remainingSubParts = subParts.subList(1, subParts.size)
+//    val s = possibleAmountsOfSizesForSubPart(firstSubPart, sizes)
+//    for (x in s) {
+//        val remainingSizes = sizes.takeLast(sizes.size - x.key)
+//        val z = handleSubParts(remainingSubParts, remainingSizes)
+//        res += x.value * z
+//
+//    }
+//    return res
+//}
+
+//private fun possibilities3(record: Record): Int {
+//    return handleSubParts(subPartsForRecord(record), record.sizes)
+//}
 
 private fun fittings(record: Record, size: Int): List<Record> {
     val res = mutableListOf<Record>()
@@ -192,54 +269,6 @@ private fun fittings(record: Record, size: Int): List<Record> {
     return res
 }
 
-private fun calculate(data: List<Record>): Long {
-    var res = 0L
-    for (d in data) {
-        res += possibilities(d, 0)
-    }
-    return res
-}
-
-private fun calculate3(data: List<Record>): Pair<Long, Long> {
-    var res = 0L
-    var eRes = 0L
-    for (d in data) {
-        print("$d ")
-        System.out.flush()
-        val p = possibilities2(d)
-        val p2 = possibilities2(explodeOne(d))
-        println("$p $p2")
-        res += p
-        eRes += p2
-    }
-    return res to eRes
-}
-
-private fun calculate4(data: List<Record>): Pair<Long, Long> {
-    var res = 0L
-    var eRes = 0L
-    for (d in data) {
-        print("$d ")
-        System.out.flush()
-        val p = possibilities3(d)
-        val p2 = possibilities3(explodeOne(d))
-        println("$p $p2")
-        res += p
-        eRes += p2
-    }
-    return res to eRes
-}
-
-private fun calculate2(data: List<Record>): Long {
-    var res = 0L
-    for (d in data) {
-        val p = possibilities2(d)
-        println("$d $p")
-        res += p
-    }
-    return res
-}
-
 private fun explode(data: List<Record>): List<Record> {
     return data.map {
         explodeOne(it)
@@ -254,11 +283,31 @@ private fun explodeOne(it: Record) = Record(
     sizes = it.sizes + it.sizes + it.sizes + it.sizes + it.sizes
 )
 
+private fun part1(it: List<String>): Long {
+    return parse(it).sumOf { possibilities(it, 0).toLong() }
+}
+
+private fun part1alt(it: List<String>): Long {
+    return parse(it).sumOf {
+        possibilities2(it).toLong()
+    }
+}
+
+//private fun part1alt2(it: List<String>): Long {
+//    return parse(it).sumOf {
+//        val res = possibilities3(it).toLong()
+//        println("$it -> $res")
+//        res
+//    }
+//}
+
 fun main() {
     day(2023, 12) {
-        part1(21L, "test") { calculate(parse(it)) }
-        part1(21L, "test") { calculate2(parse(it)) }
-        part1(8075L, "input") { calculate2(parse(it)) }
+        part1(21, "test", ::part1)
+        part1(21, "test", ::part1alt)
+//        part1(21, "test", ::part1alt2)
+        part1(8075, "input", ::part1alt)
+
         // TODO part2
     }
 }
