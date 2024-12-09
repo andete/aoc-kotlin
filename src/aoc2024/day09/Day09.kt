@@ -17,13 +17,13 @@ private fun convert(data: String): List<Long?> {
     for (i in data.indices) {
         if (i % 2 == 0) {
             val size = data[i].toString().toInt()
-            for (i in 0 until size) {
+            repeat(size) {
                 s.add(c)
             }
             c++
         } else {
             val skip = data[i].toString().toInt()
-            for (i in 0 until skip) {
+            repeat(skip) {
                 s.add(null)
             }
         }
