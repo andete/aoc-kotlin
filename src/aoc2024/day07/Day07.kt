@@ -7,7 +7,7 @@ fun main() {
         part1(3749, "example", ::part1)
         part1(850435817339, "input", ::part1)
         part2(11387, "example", ::part2)
-        part2(1711, "input", ::part2)
+        part2(104824810233437, "input", ::part2)
     }
 }
 
