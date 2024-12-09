@@ -15,6 +15,13 @@ enum class Direction4(val location: Location) {
 
     val x get() = location.x
     val y get() = location.y
+
+    fun rotate90() = when (this) {
+        North -> East
+        East -> South
+        South -> West
+        West -> North
+    }
 }
 
 enum class Direction8(val location: Location) {

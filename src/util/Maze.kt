@@ -87,6 +87,17 @@ data class LocatedItem<T>(override val location: Location, var t: T) : Located, 
 
 typealias ItemMaze<T> = Maze<LocatedItem<T>>
 
+fun<T> ItemMaze<T>.find(t: T): Location? {
+    for (row in rows) {
+        for (x in row) {
+            if (x.t == t) {
+                return x.location
+            }
+        }
+    }
+    return null
+}
+
 typealias CharMaze = ItemMaze<Char>
 
 fun <T> createItemMaze(xSize: Int, ySize: Int, valueProvider: (Int, Int) -> T): ItemMaze<T> {
