@@ -14,7 +14,6 @@ fun main() {
 private fun convert(data: String): List<Long?> {
     val s = mutableListOf<Long?>()
     var c = 0L
-    var skip = 0
     for (i in data.indices) {
         if (i % 2 == 0) {
             val size = data[i].toString().toInt()
