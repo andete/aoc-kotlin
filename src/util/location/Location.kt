@@ -2,6 +2,7 @@ package util.location
 
 data class Location(override val x: Int, override val y: Int): LocationBase<Int, Location> {
     override operator fun plus(other: Location) = Location(x + other.x, y + other.y)
+    override operator fun minus(other: Location) = Location(x - other.x, y - other.y)
     override operator fun plus(other: Direction4) = Location(x + other.location.x, y + other.location.y)
     override operator fun plus(other: Direction8) = Location(x + other.location.x, y + other.location.y)
     override operator fun times(i: Int) = Location(x * i, y * i)
