@@ -110,6 +110,18 @@ fun<T> ItemMaze<T>.findAll(t: T): List<Location> {
     return res
 }
 
+fun<T> ItemMaze<T>.findAllItems(t: T): List<LocatedItem<T>> {
+    val res = mutableListOf<LocatedItem<T>>()
+    for (row in rows) {
+        for (x in row) {
+            if (x.t == t) {
+                res.add(x)
+            }
+        }
+    }
+    return res
+}
+
 typealias CharMaze = ItemMaze<Char>
 
 fun <T> createItemMaze(xSize: Int, ySize: Int, valueProvider: (Int, Int) -> T): ItemMaze<T> {
