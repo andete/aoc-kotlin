@@ -9,7 +9,7 @@ fun main() {
         part1(183248, "input") { part1(25, it) }
         part2(7, "example") { part2(1, it) }
         part2(183248, "input") { part2(25, it) }
-        part2(183248, "input") { part2(75, it) }
+        part2(218811774248729, "input") { part2(75, it) }
     }
 }
 
