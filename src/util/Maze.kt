@@ -47,6 +47,9 @@ data class Maze<L>(val rows: List<List<L>>) where L : Located, L : CharProvider 
     fun neighbours(cell: L): List<Pair<Direction4, L>> {
         return Direction4.entries.mapNotNull { dir -> at(cell.location + dir)?.let { dir to it } }
     }
+    fun neighboursWithNull(cell: L): List<Pair<Direction4, L?>> {
+        return Direction4.entries.map { dir -> at(cell.location + dir)?.let { dir to it } ?: (dir to null) }
+    }
 
     fun neighbours2(cell: L): List<Pair<Direction8, L>> {
         return Direction8.entries.mapNotNull { dir -> at(cell.location + dir)?.let { dir to it } }
