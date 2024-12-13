@@ -10,14 +10,10 @@ fun main() {
     day(2024, 13) {
         part1(480, "example", ::part1)
         part1(28059, "input", ::part1)
-        part2(81, "example", ::part2)
-        part2(1120, "input", ::part2)
+        part2(875318608908, "example", ::part2)
+        part2(102255878088512, "input", ::part2)
     }
 }
-
-/* Button A: X+94, Y+34
-Button B: X+22, Y+67
-Prize: X=8400, Y=5400 */
 
 private data class ClawMachine(val a: LocationLong, val b: LocationLong, val prize: LocationLong)
 
@@ -90,7 +86,7 @@ private fun converge(
         return converge(m, currentA, mm, rem, depth + 1)
     }
     if (current.x.absoluteValue < 100 && current.y.absoluteValue < 100) {
-        minTokens2(m, current)?.let { (a,b) ->
+        minTokens2(m, current)?.let { (a, b) ->
             val a = a + currentA
             val b = b + currentB
             return a * 3 + b
@@ -119,6 +115,27 @@ private fun converge(
     }
 }
 
+private fun solve(m: ClawMachine): Pair<Long, Long>? {
+
+    // equation solved via wolfram alpha: a * x1 + b * x2 = x3 and a * y1 + b * y2 = y3 solve for a and b
+    // a = (x3 y2 - x2 y3)/(x1 y2 - x2 y1) and b = (x3 y1 - x1 y3)/(x2 y1 - x1 y2) and x2 y1!=x1 y2 and x2!=0
+
+    val a1 = m.prize.x * m.b.y - m.b.x * m.prize.y
+    val a2 = m.a.x * m.b.y - m.b.x * m.a.y
+    if (a1 % a2 != 0L) {
+        return null
+    }
+    val a = a1 / a2
+    val b1 = m.prize.x * m.a.y - m.a.x * m.prize.y
+    val b2 = m.b.x * m.a.y - m.a.x * m.b.y
+    if (b1 % b2 != 0L) {
+        return null
+    }
+    val b = b1 / b2
+    return a to b
+
+}
+
 private fun part1(data: List<String>): Long {
     val clawMachines = parse(data)
     return clawMachines.sumOf { minTokens1(it) ?: 0L }
@@ -126,6 +143,6 @@ private fun part1(data: List<String>): Long {
 
 private fun part2(data: List<String>): Long {
     val clawMachines = parse(data, 10000000000000)
-    return clawMachines.sumOf { converge(it) ?: 0L }
+    return clawMachines.sumOf { solve(it)?.let { (a, b) -> a * 3 + b } ?: 0L }
     return 0
 }
