@@ -29,6 +29,12 @@ enum class Direction4(val location: Location) {
         South -> West
         West -> North
     }
+    fun rotate90cc() = when (this) {
+        North -> West
+        East -> North
+        South -> East
+        West -> South
+    }
 }
 
 enum class Direction8(val location: Location) {

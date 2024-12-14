@@ -20,8 +20,8 @@ fun main() {
         part2(436, "example1a", ::part2)
         part2(236, "example1e", ::part2)
         part2(368, "example1ab", ::part2)
-        part2(1206, "example2", ::part1)
-        part2(23177084, "input", ::part2)
+        part2(1206, "example2", ::part2)
+        part2(902620, "input", ::part2)
 
     }
 }
@@ -74,7 +74,12 @@ private fun part1(data: List<String>): Long {
     return res
 }
 
-private fun paint(maze: ItemMaze<CropPlot>, location: Location, cropGroup: Int, visited: HashSet<Location> = hashSetOf()): List<Location> {
+private fun paint(
+    maze: ItemMaze<CropPlot>,
+    location: Location,
+    cropGroup: Int,
+    visited: HashSet<Location> = hashSetOf()
+): List<Location> {
     val res = mutableListOf<Location>()
     val cropPlot = maze.at(location)!!
     val crop = cropPlot.t.crop
@@ -89,42 +94,96 @@ private fun paint(maze: ItemMaze<CropPlot>, location: Location, cropGroup: Int, 
     return res
 }
 
-private data class CropPlot(val crop: Char, var fences: MutableMap<Direction4, Int> = mutableMapOf(), var cropGroup: Int? = null): CharProvider {
+private data class CropPlot(
+    val crop: Char,
+    var fences: MutableMap<Direction4, Int> = mutableMapOf(),
+    var cropGroup: Int? = null
+) : CharProvider {
     override fun toChar(): String {
         val group = cropGroup ?: " "
         val edges = Direction4.entries.map {
+            //val fenceId = fences[it] ?: -1
+            //val fenceIdS = if (fenceId != -1) {
+            //    fenceId.toString()
+            //} else {
+            //    " "
+            //}
             if (fences.containsKey(it)) {
                 it.toChar()
             } else {
                 " "
-            }
+           }
         }.sorted().joinToString("")
         return "$crop$group$edges "
     }
 }
 
 private fun part2(data: List<String>): Long {
-    val maze = createItemMaze(data[0].length, data.size) { x,y ->
+    val maze = createItemMaze(data[0].length, data.size) { x, y ->
         CropPlot(data[y][x])
     }
-    maze.show()
+    // maze.show()
     var res = 0L
 
     // identify crop groups and their area
     val numberOfGroups = calculateGroupsAndAreas(maze)
-    maze.show()
+    // maze.show()
     for (group in 0 until numberOfGroups) {
         calculateSidesForGroup(maze, group)
     }
-    maze.show()
+    // maze.show()
     for (group in 0 until numberOfGroups) {
-        calculateFenceNumbersForSidesForGroup(maze, group)
+        val sides = calculateFenceNumbersForSidesForGroup(maze, group)
+        val area = maze.rows.flatten().count { it.t.cropGroup == group }
+        res += sides * area
     }
+    // maze.show()
     return res
 }
 
-private fun calculateFenceNumbersForSidesForGroup(maze: ItemMaze<CropPlot>, i: Int) {
-    val cropPlots = maze.rows.flatten().filter { it.t.cropGroup == i }
+private fun calculateFenceNumbersForSidesForGroup(maze: ItemMaze<CropPlot>, group: Int): Int {
+    val cropPlots = maze.rows.flatten().filter { it.t.cropGroup == group && it.t.fences.isNotEmpty() }
+    // start with a corner crop plot with North and West side
+    var fenceNumber = 0
+    while (cropPlots.any { it.t.fences.values.any { it == -1 }}) {
+        val start = cropPlots.first {
+            val fences = it.t.fences
+            val fenceDirs = fences.keys.toList()
+            val fenceIds = fences.values.toList()
+            // always start on a corner (>= 2) .. can't really for some inside fences
+            fenceDirs.isNotEmpty() && fenceIds.any { it == -1 }
+        }
+        var position = start
+        var direction = position.t.fences.keys.first { position.t.fences[it] == -1 }
+        var moveDirection = direction.rotate90()
+        while (position.t.fences.values.any { it == -1 }) {
+            position.t.fences[direction] = fenceNumber
+            val nextPosition = maze.at(position.location + moveDirection)
+
+            if (nextPosition?.t?.cropGroup == group && nextPosition.t.fences.keys.contains(direction) == true) {
+                position = nextPosition
+                continue
+            } else {
+                fenceNumber++
+                if (position.t.fences.keys.contains(direction.rotate90())) {
+                    // either rotate clockwise, then we stay on the same cropPlot
+                    // _
+                    // X|
+                    direction = direction.rotate90()
+                    moveDirection = direction.rotate90()
+                } else {
+                    // or rotate anti-clockwise, then we move to another plot
+                    direction = direction.rotate90cc()
+                    moveDirection = direction.rotate90()
+                    position = maze.at(position.location + moveDirection + -direction) ?: error("can't rotate 90cc")
+                    // X|_
+                    // X X
+
+                }
+            }
+        }
+    }
+    return fenceNumber
 }
 
 private fun calculateSidesForGroup(maze: ItemMaze<CropPlot>, i: Int) {
@@ -133,7 +192,7 @@ private fun calculateSidesForGroup(maze: ItemMaze<CropPlot>, i: Int) {
     for (cropPlot in cropPlots) {
         val edges = maze.neighboursWithNull(cropPlot).filter { it.second?.t?.crop != crop }
         for (edge in edges) {
-            cropPlot.t.fences[edge.first] = - 1
+            cropPlot.t.fences[edge.first] = -1
         }
     }
 }
@@ -150,93 +209,11 @@ private fun calculateGroupsAndAreas(
             if (location !in visited) {
                 val sameCropLocations = paint(maze, Location(x, y), currentCropGroup)
                 sameCropLocations.forEach { t -> visited.add(t) }
-                println("${maze.at(location)!!.t}: $sameCropLocations")
+                // println("${maze.at(location)!!.t}: $sameCropLocations")
                 areas[currentCropGroup] = sameCropLocations.size
                 currentCropGroup++
             }
         }
     }
     return currentCropGroup
-}
-
-private data class EdgeCorner(val direction: Direction4, val first: Location, val second: Location) {
-    constructor(direction: Direction4, x1: Int, y1: Int, x2: Int, y2: Int) : this(
-        direction,
-        Location(x1, y1),
-        Location(x2, y2)
-    )
-}
-
-fun calculateSides(maze: CharMaze, locations: List<Location>): Int {
-    val crop = maze.at(locations[0])!!.t
-    val edgeLocations = locations.flatMap { location ->
-        val cropPlot = maze.at(location)!!
-        maze.neighboursWithNull(cropPlot).filter { it.second?.t != crop }.map {
-            location to it.first
-        }
-    }
-    val edgeCorners = edgeLocations.map { (loc, dir) ->
-        when (dir) {
-            Direction4.East -> EdgeCorner(dir, loc.x + 1, loc.y, loc.x + 1, loc.y + 1)
-            Direction4.North -> EdgeCorner(dir, loc.x, loc.y, loc.x + 1, loc.y)
-            Direction4.West -> EdgeCorner(dir, loc.x, loc.y, loc.x, loc.y + 1)
-            Direction4.South -> EdgeCorner(dir, loc.x, loc.y + 1, loc.x + 1, loc.y + 1)
-        }
-    }
-    var sides = 0
-    val edgeCornersToSee = edgeCorners.toHashSet()
-    while (edgeCornersToSee.isNotEmpty()) {
-        val connected = mutableListOf<Location>()
-        val start = edgeCornersToSee.first()
-        edgeCornersToSee.remove(start)
-        var edge = start
-        var location = when (edge.direction) {
-            Direction4.East -> listOf(edge.first, edge.second).minBy { it.y }
-            Direction4.South -> listOf(edge.first, edge.second).maxBy { it.x }
-            Direction4.West -> listOf(edge.first, edge.second).maxBy { it.y }
-            Direction4.North -> listOf(edge.first, edge.second).minBy { it.x }
-
-        }
-        var connector = if (location == edge.first) { edge.second } else { edge.first }
-        connected.add(location)
-        while (true) {
-            val nextEdges = edgeCorners.filter {
-                it != edge && (it.first == connector || it.second == connector)
-            }
-            val nextEdge = if (nextEdges.size == 1) {
-                nextEdges[0]
-            } else {
-                nextEdges.single { it.direction == edge.direction.rotate90() }
-            }
-            if (nextEdge == start) {
-                break
-            }
-            edgeCornersToSee.remove(nextEdge)
-            connected.add(connector)
-            edge = nextEdge
-            location = connector
-            connector = if (edge.first != connector) {
-                edge.first
-            } else {
-                edge.second
-            }
-        }
-        val second = (connected + listOf(connected[0])).subList(1, connected.size + 1)
-        val pairs = connected.zip(second)
-        var direction: Direction4? = null
-        var localSides = 0
-        for (pair in pairs) {
-            val newDirection = pair.first.direction(pair.second)
-            if (newDirection != direction) {
-                direction = newDirection
-                localSides++
-            }
-        }
-        // hack because we count a side twice if we start in the middle...
-        if (localSides % 2 == 1) {
-            localSides--
-        }
-        sides += localSides
-    }
-    return sides
 }
