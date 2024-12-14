@@ -1,5 +1,7 @@
 # aoc-kotlin
 
+Update: updated to using kotlin 2 + K2.
+
 Welcome to the Advent of Code[^aoc] Kotlin project created by [andete][github] using the [Advent of Code Kotlin Template][template] delivered by JetBrains.
 
 In this repository, andete is about to provide solutions for the puzzles using [Kotlin][kotlin] language.
