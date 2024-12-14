@@ -6,6 +6,13 @@ enum class Direction4(val location: Location) {
     East(Location(1, 0)),
     West(Location(-1, 0));
 
+    fun toChar() = when (this) {
+        North -> "N"
+        South -> "S"
+        East -> "E"
+        West -> "W"
+    }
+
     operator fun unaryMinus() = when (this) {
         North -> South
         South -> North

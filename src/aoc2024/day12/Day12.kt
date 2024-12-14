@@ -2,12 +2,12 @@ package aoc2024.day12
 
 import day
 import util.CharMaze
+import util.CharProvider
 import util.ItemMaze
 import util.LocatedItem
 import util.createItemMaze
 import util.location.Direction4
 import util.location.Location
-import util.makeItemMaze
 import util.parseCharMaze
 
 fun main() {
@@ -89,34 +89,74 @@ private fun paint(maze: ItemMaze<CropPlot>, location: Location, cropGroup: Int, 
     return res
 }
 
-private data class Fence(val fenceSide: Direction4, var fenceId: Int?)
-private data class CropPlot(val crop: Char, var fence: Fence? = null, var cropGroup: Int? = null)
+private data class CropPlot(val crop: Char, var fences: MutableMap<Direction4, Int> = mutableMapOf(), var cropGroup: Int? = null): CharProvider {
+    override fun toChar(): String {
+        val group = cropGroup ?: " "
+        val edges = Direction4.entries.map {
+            if (fences.containsKey(it)) {
+                it.toChar()
+            } else {
+                " "
+            }
+        }.sorted().joinToString("")
+        return "$crop$group$edges "
+    }
+}
 
 private fun part2(data: List<String>): Long {
     val maze = createItemMaze(data[0].length, data.size) { x,y ->
         CropPlot(data[y][x])
     }
     maze.show()
-    val visited = hashSetOf<Location>()
     var res = 0L
-    var cropGroup = 0
+
+    // identify crop groups and their area
+    val numberOfGroups = calculateGroupsAndAreas(maze)
+    maze.show()
+    for (group in 0 until numberOfGroups) {
+        calculateSidesForGroup(maze, group)
+    }
+    maze.show()
+    for (group in 0 until numberOfGroups) {
+        calculateFenceNumbersForSidesForGroup(maze, group)
+    }
+    return res
+}
+
+private fun calculateFenceNumbersForSidesForGroup(maze: ItemMaze<CropPlot>, i: Int) {
+    val cropPlots = maze.rows.flatten().filter { it.t.cropGroup == i }
+}
+
+private fun calculateSidesForGroup(maze: ItemMaze<CropPlot>, i: Int) {
+    val cropPlots = maze.rows.flatten().filter { it.t.cropGroup == i }
+    val crop = cropPlots[0].t.crop
+    for (cropPlot in cropPlots) {
+        val edges = maze.neighboursWithNull(cropPlot).filter { it.second?.t?.crop != crop }
+        for (edge in edges) {
+            cropPlot.t.fences[edge.first] = - 1
+        }
+    }
+}
+
+private fun calculateGroupsAndAreas(
+    maze: ItemMaze<CropPlot>
+): Int {
+    val visited = hashSetOf<Location>()
+    var currentCropGroup = 0
+    val areas = mutableMapOf<Int, Int>()
     for (y in maze.yIndices) {
         for (x in maze.xIndices) {
             val location = Location(x, y)
             if (location !in visited) {
-                val sameCropLocations = paint(maze, Location(x, y), cropGroup)
-                cropGroup++
+                val sameCropLocations = paint(maze, Location(x, y), currentCropGroup)
                 sameCropLocations.forEach { t -> visited.add(t) }
                 println("${maze.at(location)!!.t}: $sameCropLocations")
-                val area = sameCropLocations.size
-                TODO()
-//                val sides = TODO() // calculateSides(maze, sameCropLocations)
-//                println("area: $area sides: $sides")
-//                res += area * sides
+                areas[currentCropGroup] = sameCropLocations.size
+                currentCropGroup++
             }
         }
     }
-    return res
+    return currentCropGroup
 }
 
 private data class EdgeCorner(val direction: Direction4, val first: Location, val second: Location) {

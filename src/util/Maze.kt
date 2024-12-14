@@ -73,6 +73,8 @@ data class LocatedItem<T>(override val location: Location, var t: T) : Located, 
     } else if (t is WithChar) {
         val t2 = t as WithChar
         "${t2.c}"
+    } else if (t is CharProvider) {
+        (t as CharProvider).toChar()
     } else {
         "$t"
     }
