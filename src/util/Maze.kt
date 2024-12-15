@@ -92,11 +92,30 @@ data class LocatedItem<T>(override val location: Location, var t: T) : Located, 
 
 typealias ItemMaze<T> = Maze<LocatedItem<T>>
 
+fun<T> ItemMaze<T>.copyItemsFrom(o: ItemMaze<T>) {
+    for (y in yIndices) {
+        for (x in xIndices) {
+            at(x, y)!!.t = o.at(x, y)!!.t
+        }
+    }
+}
+
 fun<T> ItemMaze<T>.find(t: T): Location? {
     for (row in rows) {
         for (x in row) {
             if (x.t == t) {
                 return x.location
+            }
+        }
+    }
+    return null
+}
+
+fun<T> ItemMaze<T>.findItem(t: T): LocatedItem<T>? {
+    for (row in rows) {
+        for (x in row) {
+            if (x.t == t) {
+                return x
             }
         }
     }
