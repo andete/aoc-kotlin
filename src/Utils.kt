@@ -43,6 +43,10 @@ data class AocDay<T>(val year: Int, val day: Int) {
         part(2, expected, name, lambda)
     }
 
+    fun p2(expected: T, name: String, lambda: (List<String>) -> T) {
+        part(2, expected, name, lambda)
+    }
+
     private fun part(i: Int, expected: T, name: String, lambda: (List<String>) -> T) {
         val n2 = name.split(':')
         val input = readInput(year, day, n2[0])
