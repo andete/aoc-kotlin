@@ -2,7 +2,7 @@ package util
 
 import java.util.PriorityQueue
 
-object AStar2 {
+object AStarWithGoalFunction {
 
     data class Node<E>(
         val e: E,

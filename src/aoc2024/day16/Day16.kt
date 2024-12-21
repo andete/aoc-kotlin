@@ -1,7 +1,7 @@
 package aoc2024.day16
 
 import day
-import util.AStar2
+import util.AStarWithGoalFunction
 import util.findItem
 import util.location.Direction4
 import util.location.Location
@@ -45,7 +45,7 @@ private fun part1(data: List<String>): Long {
         res.filter { it !in visited }
         return res
     }
-    val path = AStar2.path(reindeer, ::goal, ::cost, ::neighbours)
+    val path = AStarWithGoalFunction.path(reindeer, ::goal, ::cost, ::neighbours)
     val s1 = path.subList(0, path.size - 1)
     val s2 = path.subList(1, path.size)
     val totalCost = s1.zip(s2).sumOf { (a, b) -> cost(a, b) }
