@@ -13,6 +13,8 @@ fun main() {
         part1(5153, "input", ::part1)
         part2(6, "example", ::part2)
         part2(1711, "input", ::part2)
+        part2(6, "example", ::part2alt)
+        part2(1711, "input", ::part2alt)
     }
 }
 
@@ -58,7 +60,7 @@ private fun loopDetection(maze: CharMaze): Boolean {
 }
 
 private fun part2(data: List<String>): Int {
-    val sy = data.indexOfFirst { string -> string.contains('^')  }
+    val sy = data.indexOfFirst { string -> string.contains('^') }
     val sx = data[sy].indexOf('^')
     var res = 0
     for (y in data.indices) {
@@ -73,4 +75,35 @@ private fun part2(data: List<String>): Int {
         }
     }
     return res
+}
+
+private fun part2alt(data: List<String>): Int {
+    // 1. calculate visited positions
+    val maze = parseCharMaze(data)
+    val startPosition = maze.find('^')!!
+    var position = startPosition
+    val visitedPositions = mutableListOf<Location>()
+    var direction = Direction4.North
+    while (true) {
+        visitedPositions.add(position)
+        val newPosition = position + direction
+        val newContent = maze.at(newPosition) ?: break
+        if (newContent.t == '#') {
+            direction = direction.rotate90()
+        } else {
+            position = newPosition
+        }
+    }
+    var res = mutableSetOf<Location>()
+    for (position in visitedPositions) {
+        if (position != startPosition) {
+            val maze = parseCharMaze(data)
+            maze.at(position)!!.t = 'O'
+            if (loopDetection(maze)) {
+                res.add(position)
+            }
+        }
+    }
+
+    return res.size
 }
