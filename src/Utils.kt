@@ -2,6 +2,8 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import kotlin.io.path.Path
 import kotlin.io.path.readLines
+import kotlin.time.measureTime
+import kotlin.time.measureTimedValue
 
 /**
  * Reads lines from the given input txt file.
@@ -50,11 +52,11 @@ data class AocDay<T>(val year: Int, val day: Int) {
     private fun part(i: Int, expected: T, name: String, lambda: (List<String>) -> T) {
         val n2 = name.split(':')
         val input = readInput(year, day, n2[0])
-        val res = lambda(input)
+        val (res, duration) = measureTimedValue { lambda(input) }
         if (res == expected) {
-            println("aoc$year/$day/$i: $name -> $res")
+            println("aoc$year/$day/$i: $name -> $res ($duration)")
         } else {
-            println("aoc$year/$day/$i: $name -> $res != $expected")
+            println("aoc$year/$day/$i: $name -> $res != $expected ($duration)")
         }
         check(expected == res)
     }
