@@ -28,14 +28,14 @@ object AStarWithGoalFunction {
 
     fun <E>path(
         start: E,
-        goal: (E) -> Boolean,
+        goal: (E, List<E>) -> Boolean,
         cost: (E, E) -> Int,
         neighbours: (E, List<E>) -> List<E>,
         heuristic: (E) -> Int = { 0 },
         show: (List<E>) -> Unit = {}
     ): List<E> {
         val startNode = Node(start, null)
-        if (goal(start)) {
+        if (goal(start, listOf(start))) {
             return listOf(start)
         }
 
@@ -50,13 +50,13 @@ object AStarWithGoalFunction {
         while (openSet.isNotEmpty()) {
             val current = openSet.poll() ?: break
             closedSet.add(current)
-            if (goal(current.e)) {
-                return reconstruct(current)
+            val visited = reconstruct(current)
+            if (goal(current.e, visited)) {
+                return visited
             }
             fScoreMap.remove(current)
             val score = gScore(current)
             gScoreMap.remove(current)
-            val visited = reconstruct(current)
             // println(score)
             show(visited)
             val neighboursNodes = neighbours(current.e, visited).map { Node(it, current) }
