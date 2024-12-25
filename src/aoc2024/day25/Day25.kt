@@ -6,9 +6,7 @@ fun main() {
     day(2024, 25) {
         part1(3L, "example", ::part1)
         part1(317L, "input", ::part1)
-//        part2("co,de,ka,ta", "example", ::part2)
-//        part2("cb,df,fo,ho,kk,nw,ox,pq,rt,sf,tq,wi,xz", "input", ::part2)
-
+        // there is no real 25 part2, it just requires finishing all the other puzzles
     }
 }
 
