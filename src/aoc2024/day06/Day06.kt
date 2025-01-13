@@ -33,6 +33,7 @@ private fun part1(data: List<String>): Int {
             position = newPosition
         }
     }
+    maze.show(visitedPositions.map { maze.at(it)!! })
     return visitedPositions.size
 }
 
@@ -40,9 +41,8 @@ private fun loopDetection(maze: CharMaze): Boolean {
     val visitedPositions = mutableSetOf<Pair<Location, Direction4>>()
     var position = maze.find('^')!!
     var direction = Direction4.North
-    var rotated = false
     while (true) {
-        if (!rotated && position to direction in visitedPositions) {
+        if (position to direction in visitedPositions) {
             return true
         }
         visitedPositions.add(position to direction)
@@ -50,10 +50,8 @@ private fun loopDetection(maze: CharMaze): Boolean {
         val newContent = maze.at(newPosition) ?: return false
         if (newContent.t == '#' || newContent.t == 'O') {
             direction = direction.rotate90()
-            rotated = true
         } else {
             position = newPosition
-            rotated = false
         }
     }
     return false
